@@ -1,6 +1,28 @@
-node_modules/
+# Backend (Java / Spring Boot)
+backend/target/
+backend/.mvn/
+backend/*.iml
+backend/.idea/
+backend/*.class
+backend/*.jar
+backend/*.war
+backend/*.log
+backend/.env
+
+# Frontend (React)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+
+# General
 .env
 .env.local
-dist/
-build/
+*.log
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
