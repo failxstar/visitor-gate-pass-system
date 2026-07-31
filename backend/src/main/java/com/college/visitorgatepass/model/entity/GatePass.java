@@ -1,5 +1,6 @@
 package com.college.visitorgatepass.model.entity;
 
+import com.college.visitorgatepass.model.enums.PassStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

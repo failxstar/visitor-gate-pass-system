@@ -1,4 +1,4 @@
-package com.college.visitorgatepass.model.entity;
+package com.college.visitorgatepass.model.enums;
 
 public enum PassStatus {
     PENDING,
