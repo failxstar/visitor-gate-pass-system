@@ -98,4 +98,7 @@ This project is licensed under the terms of the [MIT License](LICENSE).
 
 ## Author
 
-Capstone Project Team (Domain #125 - Security / Facility Management)
+**Sivaganesh L**  
+B.Tech IT - III (Pre-Final Year)  
+J.J. College of Engineering and Technology  
+*Capstone Project Team (Domain #125 - Security / Facility Management)*
