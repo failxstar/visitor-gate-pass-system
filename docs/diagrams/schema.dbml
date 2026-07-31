@@ -1,0 +1,61 @@
+// Database Markup Language (DBML) ER Schema
+// Visitor Entry & Gate Pass Management System
+
+Enum role_type {
+  ADMIN
+  GUARD
+  HOST
+}
+
+Enum pass_status {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+Table users {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  email varchar(255) [unique, not null]
+  password_hash varchar(255) [not null]
+  role role_type [not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table visitors {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  phone varchar(20) [not null]
+  id_proof_number varchar(100)
+  photo_url varchar(500)
+  created_at timestamp [default: `now()`]
+}
+
+Table gate_passes {
+  id bigint [pk, increment]
+  visitor_id bigint [not null, ref: > visitors.id]
+  host_id bigint [not null, ref: > users.id]
+  purpose varchar(255) [not null]
+  valid_from timestamp [not null]
+  valid_to timestamp [not null]
+  status pass_status [not null, default: 'PENDING']
+  created_at timestamp [default: `now()`]
+}
+
+Table entry_logs {
+  id bigint [pk, increment]
+  gate_pass_id bigint [not null, ref: > gate_passes.id]
+  check_in_time timestamp [not null]
+  check_out_time timestamp
+  entry_point varchar(100) [not null]
+  logged_by bigint [not null, ref: > users.id]
+}
+
+Table blacklist {
+  id bigint [pk, increment]
+  visitor_id bigint [not null, ref: > visitors.id]
+  reason varchar(500) [not null]
+  added_by bigint [not null, ref: > users.id]
+  created_at timestamp [default: `now()`]
+}
