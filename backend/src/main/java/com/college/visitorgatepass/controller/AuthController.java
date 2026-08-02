@@ -1,34 +1,34 @@
 package com.college.visitorgatepass.controller;
 
-import com.college.visitorgatepass.dto.LoginRequest;
-import com.college.visitorgatepass.dto.LoginResponse;
+import com.college.visitorgatepass.dto.AuthRequest;
+import com.college.visitorgatepass.dto.AuthResponse;
 import com.college.visitorgatepass.dto.RegisterRequest;
-import com.college.visitorgatepass.model.entity.User;
-import com.college.visitorgatepass.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.college.visitorgatepass.service.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService service;
 
-    @Autowired
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(
+            @RequestBody RegisterRequest request
+    ) {
+        return ResponseEntity.ok(service.register(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        LoginResponse response = userService.login(request);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
-        User user = userService.register(request);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<AuthResponse> login(
+            @RequestBody AuthRequest request
+    ) {
+        return ResponseEntity.ok(service.login(request));
     }
 }

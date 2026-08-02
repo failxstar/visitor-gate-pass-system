@@ -1,46 +1,53 @@
-import { useState } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { UserProvider } from './context/UserContext';
-import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Visitors from './pages/Visitors';
-import GatePass from './pages/GatePass';
-import EntryLogs from './pages/EntryLogs';
-import Blacklist from './pages/Blacklist';
+import AdminDashboard from './pages/AdminDashboard';
+import GuardDashboard from './pages/GuardDashboard';
+import HostDashboard from './pages/HostDashboard';
+import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 
-function MainApp() {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('dashboard');
-
-  if (!user) {
-    return <Login />;
-  }
-
+function App() {
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
-      <Navbar />
-      <div className="flex flex-1">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-        <main className="flex-1 p-6">
-          {activeTab === 'dashboard' && <Dashboard />}
-          {activeTab === 'visitors' && <Visitors />}
-          {activeTab === 'passes' && <GatePass />}
-          {activeTab === 'entries' && <EntryLogs />}
-          {activeTab === 'blacklist' && <Blacklist />}
-        </main>
-      </div>
-    </div>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          
+          {/* Admin Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+            <Route element={<Layout />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+              {/* Other admin routes can be added here */}
+            </Route>
+          </Route>
+
+          {/* Guard Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['GUARD']} />}>
+            <Route element={<Layout />}>
+              <Route path="/guard" element={<GuardDashboard />} />
+              {/* Other guard routes can be added here */}
+            </Route>
+          </Route>
+
+          {/* Host Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['HOST']} />}>
+            <Route element={<Layout />}>
+              <Route path="/host" element={<HostDashboard />} />
+              {/* Other host routes can be added here */}
+            </Route>
+          </Route>
+
+          <Route path="/unauthorized" element={
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-800">
+              <h1 className="text-2xl font-bold">Unauthorized Access</h1>
+            </div>
+          } />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 
-export default function App() {
-  return (
-    <AuthProvider>
-      <UserProvider>
-        <MainApp />
-      </UserProvider>
-    </AuthProvider>
-  );
-}
+export default App;
