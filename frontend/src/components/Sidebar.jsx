@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { LogOut, Home, Users, FileText, Settings, UserCheck, Activity, KeyRound, ShieldAlert, History } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import useAuth from '../context/useAuth';
+
 import clsx from 'clsx';
 
 const Sidebar = () => {

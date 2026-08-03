@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, ChevronDown } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import useAuth from '../context/useAuth';
+
 
 const ROLE_CREDENTIALS = {
   ADMIN:  { email: 'admin@college.edu',  label: 'Administrator' },
@@ -236,6 +237,24 @@ const Login = () => {
             {loading
               ? <><Loader2 size={20} style={{ animation:'spin 1s linear infinite' }}/> Signing In...</>
               : '🔓 Sign In'}
+          </button>
+          
+          {/* ── Request Visitor Pass Button ── */}
+          <button type="button" onClick={() => navigate('/visitor-request')}
+            style={{
+              width:'100%', padding:'0.9rem',
+              background: 'rgba(255, 255, 255, 0.1)',
+              color:'white', fontWeight:'700', fontSize:'0.95rem',
+              border:'1px solid rgba(255, 255, 255, 0.2)', borderRadius:'12px',
+              cursor: 'pointer',
+              display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem',
+              transition:'all 0.25s', letterSpacing:'0.03em',
+              backdropFilter: 'blur(10px)'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.background='rgba(255, 255, 255, 0.15)'; e.currentTarget.style.border='1px solid rgba(255, 255, 255, 0.3)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.background='rgba(255, 255, 255, 0.1)'; e.currentTarget.style.border='1px solid rgba(255, 255, 255, 0.2)'; }}
+          >
+            📋 Request Visitor Pass
           </button>
         </form>
 

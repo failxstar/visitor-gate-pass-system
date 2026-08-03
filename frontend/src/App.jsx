@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Login from './pages/Login';
+import VisitorRequest from './pages/VisitorRequest';
 import AdminDashboard from './pages/AdminDashboard';
 import GuardDashboard from './pages/GuardDashboard';
 import HostDashboard from './pages/HostDashboard';
@@ -13,6 +14,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/visitor-request" element={<VisitorRequest />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
           
           {/* Admin Routes */}

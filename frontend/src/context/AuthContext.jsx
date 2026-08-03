@@ -1,22 +1,21 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useState } from 'react';
 import api from '../api/axios';
 
 const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext);
+export default AuthContext;
+
+
+// Lazily initialise from localStorage — avoids synchronous setState inside useEffect
+const getInitialUser = () => {
+  const token = localStorage.getItem('token');
+  const role  = localStorage.getItem('role');
+  return token && role ? { token, role } : null;
+};
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
-    if (token && role) {
-      setUser({ token, role });
-    }
-    setLoading(false);
-  }, []);
+  const [user, setUser]       = useState(getInitialUser);
+  const [loading] = useState(false); // always false with lazy init — setter not needed
 
   const login = async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
@@ -36,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
