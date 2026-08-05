@@ -26,6 +26,13 @@ public class VisitorController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/request")
+    public ResponseEntity<com.college.visitorgatepass.dto.VisitorResponseDTO> requestVisitor(
+            @RequestBody com.college.visitorgatepass.dto.VisitorRequestDTO request) {
+        com.college.visitorgatepass.dto.VisitorResponseDTO response = visitorService.requestVisitor(request);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping
     public ResponseEntity<List<VisitorResponse>> getAllVisitors() {
         return ResponseEntity.ok(visitorService.getAllVisitors());
@@ -39,5 +46,22 @@ public class VisitorController {
     @GetMapping("/phone/{phone}")
     public ResponseEntity<VisitorResponse> getVisitorByPhone(@PathVariable String phone) {
         return ResponseEntity.ok(visitorService.getVisitorByPhone(phone));
+    }
+
+    @GetMapping("/host/{hostName}")
+    public ResponseEntity<List<com.college.visitorgatepass.dto.VisitorRequestDetailsDTO>> getRequestsByHost(@PathVariable String hostName) {
+        return ResponseEntity.ok(visitorService.getRequestsByHost(hostName));
+    }
+
+    @PutMapping("/request/{id}/status")
+    public ResponseEntity<com.college.visitorgatepass.dto.VisitorRequestDetailsDTO> updateRequestStatus(
+            @PathVariable Long id, 
+            @RequestParam String status) {
+        return ResponseEntity.ok(visitorService.updateRequestStatus(id, status));
+    }
+
+    @GetMapping("/hosts")
+    public ResponseEntity<List<String>> getAllHosts() {
+        return ResponseEntity.ok(visitorService.getAllHostNames());
     }
 }

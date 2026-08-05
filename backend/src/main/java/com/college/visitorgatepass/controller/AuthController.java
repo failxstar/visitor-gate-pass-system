@@ -27,8 +27,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
-            @RequestBody AuthRequest request
+            @RequestBody com.college.visitorgatepass.dto.AuthRequest request
     ) {
         return ResponseEntity.ok(service.login(request));
     }
+
 }

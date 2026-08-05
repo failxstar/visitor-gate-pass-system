@@ -1,4 +1,6 @@
-import { Users, FileText, ShieldAlert, UserCheck } from 'lucide-react';
+import { useState } from 'react';
+import { Users, FileText, ShieldAlert, UserCheck, X } from 'lucide-react';
+import api from '../api/axios';
 
 const StatCard = ({ title, value, icon: Icon, trend, trendLabel }) => (
   <div className="bg-white dark:bg-dark-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow">
@@ -22,7 +24,74 @@ const StatCard = ({ title, value, icon: Icon, trend, trendLabel }) => (
   </div>
 );
 
+const CreateUserModal = ({ isOpen, onClose }) => {
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'HOST' });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: '', type: '' });
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage({ text: '', type: '' });
+    try {
+      await api.post('/auth/register', formData);
+      setMessage({ text: 'User created successfully!', type: 'success' });
+      setFormData({ name: '', email: '', password: '', role: 'HOST' });
+      setTimeout(onClose, 2000);
+    } catch (error) {
+      setMessage({ text: error.response?.data?.message || 'Failed to create user', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in">
+      <div className="bg-white dark:bg-dark-800 rounded-2xl w-full max-w-md p-6 relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+          <X className="w-5 h-5" />
+        </button>
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Create New User</h2>
+        {message.text && (
+          <div className={`p-3 rounded-xl mb-4 text-sm font-medium ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            {message.text}
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+            <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-2 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <input type="email" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full px-4 py-2 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <input type="password" required value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} className="w-full px-4 py-2 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+            <select required value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })} className="w-full px-4 py-2 bg-gray-50 dark:bg-dark-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary-500">
+              <option value="HOST">Host / Faculty</option>
+              <option value="GUARD">Security Guard</option>
+              <option value="ADMIN">Administrator</option>
+            </select>
+          </div>
+          <button type="submit" disabled={loading} className="w-full py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium disabled:opacity-50">
+            {loading ? 'Creating...' : 'Create User'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const AdminDashboard = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -69,8 +138,10 @@ const AdminDashboard = () => {
         <div className="bg-white dark:bg-dark-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
           <div className="space-y-3">
-            <button className="w-full text-left px-4 py-3 rounded-xl bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors text-sm font-medium text-gray-900 dark:text-white">
-              Add New Guard
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="w-full text-left px-4 py-3 rounded-xl bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors text-sm font-medium text-gray-900 dark:text-white">
+              Create New User
             </button>
             <button className="w-full text-left px-4 py-3 rounded-xl bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors text-sm font-medium text-gray-900 dark:text-white">
               Generate Report
@@ -81,6 +152,8 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      <CreateUserModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

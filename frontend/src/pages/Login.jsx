@@ -75,10 +75,10 @@ const Login = () => {
       <div style={{ position:'fixed', top:'40%', left:'30%', width:'200px', height:'200px',
         borderRadius:'50%', background:'rgba(167,139,250,0.15)', filter:'blur(60px)', zIndex:0 }} />
 
-      {/* Card */}
+            {/* Card */}
       <div style={{
         position:'relative', zIndex:1,
-        width:'100%', maxWidth:'390px',
+        width:'100%', maxWidth:'480px', /* <-- INCREASE THIS VALUE (e.g., 480px, 500px) */
         background:'rgba(255,255,255,0.13)',
         backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
         borderRadius:'28px',
@@ -86,6 +86,7 @@ const Login = () => {
         padding:'2.25rem 2rem',
         boxShadow:'0 32px 64px rgba(0,0,0,0.35)',
       }}>
+
 
         {/* ── Logo ── */}
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', marginBottom:'1.5rem' }}>

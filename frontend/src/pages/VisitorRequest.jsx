@@ -1,13 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { User, Phone, Mail, FileText, Calendar, Building, Send, RefreshCw, ArrowLeft } from 'lucide-react';
-
-const HOSTS = [
-  'Dr. Alan Turing (Computer Science)',
-  'Prof. Marie Curie (Physics)',
-  'Dr. John von Neumann (Mathematics)',
-  'Prof. Ada Lovelace (Engineering)',
-];
 
 const VisitorRequest = () => {
   const navigate = useNavigate();
@@ -21,6 +15,20 @@ const VisitorRequest = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [hosts, setHosts] = useState([]);
+
+  useEffect(() => {
+    const fetchHosts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/visitors/hosts');
+        setHosts(response.data);
+      } catch (err) {
+        console.error('Failed to fetch hosts:', err);
+      }
+    };
+    fetchHosts();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -38,14 +46,33 @@ const VisitorRequest = () => {
     setIsSuccess(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (!formData.fullName || !formData.phone || !formData.email || !formData.host || !formData.visitDate || !formData.purpose) {
+      setError('Please fill out all fields.');
+      return;
+    }
+
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await axios.post('http://localhost:8080/api/visitors/request', {
+        name: formData.fullName,
+        phone: formData.phone,
+        email: formData.email,
+        host: formData.host,
+        visitDate: formData.visitDate,
+        purpose: formData.purpose
+      });
+      if (response.data.message === 'Request submitted successfully') {
+        setIsSuccess(true);
+      }
+    } catch (err) {
+      setError('Failed to submit request. Please try again.');
+    } finally {
       setIsSubmitting(false);
-      setIsSuccess(true);
-    }, 1500);
+    }
   };
 
   return (
@@ -83,7 +110,7 @@ const VisitorRequest = () => {
             <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Send className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Request Submitted!</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">Request submitted successfully</h2>
             <p className="text-emerald-100 mb-6">
               Your visitor pass request has been sent to the host for approval. You will be notified once it is approved.
             </p>
@@ -104,6 +131,11 @@ const VisitorRequest = () => {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5 text-left">
+            {error && (
+              <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 text-red-200 text-sm backdrop-blur-sm animate-in fade-in zoom-in duration-300">
+                {error}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Full Name */}
               <div>
@@ -186,7 +218,7 @@ const VisitorRequest = () => {
                   className="w-full bg-white/10 border border-white/20 text-white rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all appearance-none cursor-pointer"
                 >
                   <option value="" disabled className="text-gray-900">Select a host</option>
-                  {HOSTS.map(host => (
+                  {hosts.map(host => (
                     <option key={host} value={host} className="text-gray-900">{host}</option>
                   ))}
                 </select>

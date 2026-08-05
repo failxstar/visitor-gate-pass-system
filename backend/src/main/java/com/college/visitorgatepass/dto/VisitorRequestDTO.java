@@ -5,13 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse {
-    private String token;
-    private String role;
+@AllArgsConstructor
+@Builder
+public class VisitorRequestDTO {
     private String name;
+    private String phone;
     private String email;
+    private String host;
+    private LocalDate visitDate;
+    private String purpose;
 }
