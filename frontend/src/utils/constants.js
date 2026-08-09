@@ -1,0 +1,12 @@
+export const ROLES = {
+  ADMIN: 'ADMIN',
+  GUARD: 'GUARD',
+  HOST: 'HOST',
+};
+
+export const PASS_STATUS = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED',
+};
