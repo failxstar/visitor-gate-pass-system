@@ -78,7 +78,7 @@ const Login = () => {
             {/* Card */}
       <div style={{
         position:'relative', zIndex:1,
-        width:'100%', maxWidth:'480px', /* <-- INCREASE THIS VALUE (e.g., 480px, 500px) */
+        width:'100%', maxWidth:'550px',
         background:'rgba(255,255,255,0.13)',
         backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
         borderRadius:'28px',
