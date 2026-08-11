@@ -50,19 +50,20 @@ const Login = () => {
   };
 
   /* ─── styles ─────────────────────────────────────────────── */
-  const input = {
+    const input = {
     width: '100%', padding: '0.8rem 1rem',
-    background: 'rgba(255,255,255,0.13)',
-    border: '1px solid rgba(255,255,255,0.28)',
+    background: 'rgba(0, 0, 0, 0.2)',                 // Changed to dark transparency
+    border: '1px solid rgba(255, 255, 255, 0.08)',    // Much more subtle border
     borderRadius: '12px', color: 'white',
     fontSize: '0.95rem', outline: 'none',
     boxSizing: 'border-box', transition: 'border 0.2s',
   };
 
+
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(140deg, #4f46e5 0%, #7c3aed 45%, #9333ea 100%)',
+      background: 'linear-gradient(140deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '1rem', fontFamily: "'Inter', 'Segoe UI', sans-serif",
       position: 'relative', overflow: 'hidden',
@@ -75,16 +76,15 @@ const Login = () => {
       <div style={{ position:'fixed', top:'40%', left:'30%', width:'200px', height:'200px',
         borderRadius:'50%', background:'rgba(167,139,250,0.15)', filter:'blur(60px)', zIndex:0 }} />
 
-            {/* Card */}
-      <div style={{
+              <div style={{
         position:'relative', zIndex:1,
         width:'100%', maxWidth:'550px',
-        background:'rgba(255,255,255,0.13)',
+        background:'rgba(255, 255, 255, 0.04)',       // Lowered the white opacity
         backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
         borderRadius:'28px',
-        border:'1px solid rgba(255,255,255,0.28)',
+        border:'1px solid rgba(255, 255, 255, 0.1)',  // Subtle edge highlight
         padding:'2.25rem 2rem',
-        boxShadow:'0 32px 64px rgba(0,0,0,0.35)',
+        boxShadow:'0 32px 64px rgba(0,0,0,0.5)',      // Stronger shadow for depth
       }}>
 
 
@@ -222,8 +222,9 @@ const Login = () => {
             style={{
               width:'100%', padding:'0.9rem',
               background: loading
-                ? 'rgba(255,255,255,0.5)'
-                : 'linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #ec4899 100%)',
+                ? 'rgba(255,255,255,0.2)'
+                : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', // Indigo to Violet
+
               color:'white', fontWeight:'800', fontSize:'1rem',
               border:'none', borderRadius:'12px',
               cursor: loading ? 'not-allowed' : 'pointer',
