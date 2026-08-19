@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
 import { Moon, Sun } from 'lucide-react';
 
 const Layout = () => {
@@ -21,7 +20,6 @@ const Layout = () => {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
-      <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="h-16 flex items-center justify-between px-8 border-b border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-dark-800/50 backdrop-blur-md">
           <h1 className="text-xl font-semibold text-gray-800 dark:text-white">Dashboard</h1>
