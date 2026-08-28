@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * Represents a visitor in the system.
+ */
 public class Visitor {
 
     @Id
