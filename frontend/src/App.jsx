@@ -4,11 +4,13 @@ import Login from './pages/Login';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from './pages/AdminDashboard';
+import MouseEffect from './components/MouseEffect';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
+        <MouseEffect />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/admin" replace />} />
