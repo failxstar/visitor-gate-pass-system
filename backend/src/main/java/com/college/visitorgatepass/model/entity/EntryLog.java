@@ -33,5 +33,5 @@ public class EntryLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "logged_by", nullable = false)
-    private User loggedBy;
+    private Guard loggedBy;
 }

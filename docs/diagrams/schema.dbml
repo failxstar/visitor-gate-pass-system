@@ -14,7 +14,25 @@ Enum pass_status {
   EXPIRED
 }
 
-Table users {
+Table admins {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  email varchar(255) [unique, not null]
+  password_hash varchar(255) [not null]
+  role role_type [not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table hosts {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  email varchar(255) [unique, not null]
+  password_hash varchar(255) [not null]
+  role role_type [not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table guards {
   id bigint [pk, increment]
   name varchar(255) [not null]
   email varchar(255) [unique, not null]
@@ -35,7 +53,7 @@ Table visitors {
 Table gate_passes {
   id bigint [pk, increment]
   visitor_id bigint [not null, ref: > visitors.id]
-  host_id bigint [not null, ref: > users.id]
+  host_id bigint [not null, ref: > hosts.id]
   purpose varchar(255) [not null]
   valid_from timestamp [not null]
   valid_to timestamp [not null]
@@ -49,13 +67,13 @@ Table entry_logs {
   check_in_time timestamp [not null]
   check_out_time timestamp
   entry_point varchar(100) [not null]
-  logged_by bigint [not null, ref: > users.id]
+  logged_by bigint [not null, ref: > guards.id]
 }
 
 Table blacklist {
   id bigint [pk, increment]
   visitor_id bigint [not null, ref: > visitors.id]
   reason varchar(500) [not null]
-  added_by bigint [not null, ref: > users.id]
+  added_by bigint [not null, ref: > admins.id]
   created_at timestamp [default: `now()`]
 }

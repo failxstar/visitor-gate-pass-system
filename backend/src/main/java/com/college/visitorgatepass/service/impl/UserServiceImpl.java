@@ -52,12 +52,35 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Email already registered");
         }
 
-        User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .build();
+        User user;
+        switch (request.getRole()) {
+            case ADMIN:
+                user = com.college.visitorgatepass.model.entity.Admin.builder()
+                        .name(request.getName())
+                        .email(request.getEmail())
+                        .passwordHash(passwordEncoder.encode(request.getPassword()))
+                        .role(request.getRole())
+                        .build();
+                break;
+            case HOST:
+                user = com.college.visitorgatepass.model.entity.Host.builder()
+                        .name(request.getName())
+                        .email(request.getEmail())
+                        .passwordHash(passwordEncoder.encode(request.getPassword()))
+                        .role(request.getRole())
+                        .build();
+                break;
+            case GUARD:
+                user = com.college.visitorgatepass.model.entity.Guard.builder()
+                        .name(request.getName())
+                        .email(request.getEmail())
+                        .passwordHash(passwordEncoder.encode(request.getPassword()))
+                        .role(request.getRole())
+                        .build();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid role");
+        }
 
         return userRepository.save(user);
     }

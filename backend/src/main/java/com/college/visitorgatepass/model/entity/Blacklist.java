@@ -27,7 +27,7 @@ public class Blacklist {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "added_by", nullable = false)
-    private User addedBy;
+    private Admin addedBy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

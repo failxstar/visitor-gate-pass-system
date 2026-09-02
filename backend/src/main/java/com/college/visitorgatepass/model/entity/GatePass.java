@@ -25,7 +25,7 @@ public class GatePass {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "host_id", nullable = false)
-    private User host;
+    private Host host;
 
     @Column(nullable = false)
     private String purpose;

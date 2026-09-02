@@ -22,12 +22,35 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
-        var user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .build();
+        User user;
+        switch (request.getRole()) {
+            case ADMIN:
+                user = com.college.visitorgatepass.model.entity.Admin.builder()
+                        .name(request.getName())
+                        .email(request.getEmail())
+                        .passwordHash(passwordEncoder.encode(request.getPassword()))
+                        .role(request.getRole())
+                        .build();
+                break;
+            case HOST:
+                user = com.college.visitorgatepass.model.entity.Host.builder()
+                        .name(request.getName())
+                        .email(request.getEmail())
+                        .passwordHash(passwordEncoder.encode(request.getPassword()))
+                        .role(request.getRole())
+                        .build();
+                break;
+            case GUARD:
+                user = com.college.visitorgatepass.model.entity.Guard.builder()
+                        .name(request.getName())
+                        .email(request.getEmail())
+                        .passwordHash(passwordEncoder.encode(request.getPassword()))
+                        .role(request.getRole())
+                        .build();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid role");
+        }
         repository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder()
