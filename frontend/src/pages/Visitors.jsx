@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { visitorApi } from '../api/visitorApi';
 
 const Visitors = () => {
@@ -6,13 +6,8 @@ const Visitors = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchVisitors();
-  }, []);
-
-  const fetchVisitors = async () => {
+  const loadData = async () => {
     try {
-      setLoading(true);
       const data = await visitorApi.getAllVisitors();
       setVisitors(data);
       setError(null);
@@ -22,6 +17,15 @@ const Visitors = () => {
       setLoading(false);
     }
   };
+
+  const handleRefresh = () => {
+    setLoading(true);
+    loadData();
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   if (loading) {
     return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>;
@@ -36,7 +40,7 @@ const Visitors = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Visitor Directory</h1>
         <button 
-          onClick={fetchVisitors}
+          onClick={handleRefresh}
           className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md shadow-sm border border-gray-300 transition-colors"
         >
           Refresh Data

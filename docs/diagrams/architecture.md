@@ -47,7 +47,7 @@ flowchart TB
     %% DATABASE LAYER
     %% -------------------------------------------------------------
     subgraph DatabaseLayer ["Database Layer (Relational Storage)"]
-        subgraph MySQLDB ["MySQL Database / H2 Dev DB"]
+        subgraph PostgreSQLDB ["PostgreSQL Database / H2 Dev DB"]
             T1["users"]
             T2["visitors"]
             T3["gate_passes"]
@@ -73,13 +73,13 @@ flowchart TB
         direction LR
         Host_Vercel["Frontend Hosting<br/>▲ Vercel (React App)"]
         Host_Render["Backend Hosting<br/>☁ Render (Spring Boot API)"]
-        Host_DB["Database Hosting<br/>⚡ Clever Cloud / Railway (MySQL)"]
+        Host_DB["Database Hosting<br/>⚡ Supabase / Railway (PostgreSQL)"]
     end
 
     %% Communications & Data Flow
     ReactApp -->|"HTTPS / JSON REST API"| RestAPI
     RestAPI <--> SpringApp
-    SpringApp -->|"JDBC / JPA Hibernate"| MySQLDB
+    SpringApp -->|"JDBC / JPA Hibernate"| PostgreSQLDB
 
     SpringApp -->|"SMTP / API"| EmailService
     SpringApp -->|"HTTPS / API"| MapsAPI
@@ -88,7 +88,7 @@ flowchart TB
 
     ReactApp -.-> Host_Vercel
     SpringApp -.-> Host_Render
-    MySQLDB -.-> Host_DB
+    PostgreSQLDB -.-> Host_DB
 ```
 
 ---
@@ -105,9 +105,9 @@ flowchart TB
    - Core Modules: `Auth`, `Visitor`, `Gate Pass`, `Entry Log`, `Blacklist`, and `Notification`.
    - Security: Spring Security + JWT authentication and role-based access control (RBAC).
 
-3. **Database Layer (MySQL / H2)**:
+3. **Database Layer (PostgreSQL / H2)**:
    - Stores core persistent relational tables (`users`, `visitors`, `gate_passes`, `entry_logs`, `blacklist`).
-   - Local development uses **H2 in-memory DB**; production uses **MySQL** on Railway / Clever Cloud.
+   - Local development uses **H2 in-memory DB**; production uses **PostgreSQL** on Railway / Supabase.
 
 4. **External Integrations**:
    - **SendGrid / SMTP**: Automated email dispatches to host employees upon visitor arrival.

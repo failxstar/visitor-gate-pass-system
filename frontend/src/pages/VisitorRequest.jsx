@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { visitorApi } from '../api/visitorApi';
 
 const VisitorRequest = () => {

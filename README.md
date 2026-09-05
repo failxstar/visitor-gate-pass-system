@@ -73,7 +73,7 @@ flowchart TB
 
     %% Database Layer
     subgraph DatabaseLayer ["Database Layer"]
-        DB[("MySQL Database / H2 Dev DB")]
+        DB[("PostgreSQL Database / H2 Dev DB")]
     end
 
     %% Communication Flow
@@ -206,7 +206,7 @@ erDiagram
 | **Frontend** | React 18 (Vite) + CSS | Modular Single Page Application with Navbar, Sidebar, Context Providers, and Dashboard views. |
 | **Backend** | Java 17 + Spring Boot 3.x | Layered REST API architecture (`controller`, `service`, `repository`, `model`, `dto`, `exception`, `util`). |
 | **Security** | Spring Security | Encrypted passwords (`BCrypt`), CORS filters, and custom JWT request filter. |
-| **Database** | MySQL / H2 | Relational schema with JPA Hibernate ORM (`users`, `visitors`, `gate_passes`, `entry_logs`, `blacklist`). |
+| **Database** | PostgreSQL / H2 | Relational schema with JPA Hibernate ORM (`users`, `visitors`, `gate_passes`, `entry_logs`, `blacklist`). |
 
 ---
 
