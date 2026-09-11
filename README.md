@@ -1,6 +1,6 @@
 # Visitor Entry & Gate Pass Management System
 
-> A modern, secure, and modular campus access control application built with **Spring Boot 3.x**, **Java 17**, and **React 18 (Vite)**.
+> A modern, secure, and modular campus access control application built with **Spring Boot 3.x**, **Java 17**, and **React 18 (Vite)**, and **postgresql**.
 
 ---
 
