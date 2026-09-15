@@ -11,4 +11,7 @@ import java.util.List;
 public interface GatePassRepository extends JpaRepository<GatePass, Long> {
     long countByStatus(PassStatus status);
     List<GatePass> findTop5ByOrderByCreatedAtDesc();
+    List<GatePass> findByHostIdOrderByCreatedAtDesc(Long hostId);
+    List<GatePass> findByVisitorIdOrderByCreatedAtDesc(Long visitorId);
+    List<GatePass> findByStatusOrderByCreatedAtDesc(PassStatus status);
 }

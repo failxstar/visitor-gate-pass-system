@@ -6,13 +6,27 @@ import { useAuth } from '../context/AuthContext';
 const Sidebar = () => {
   const { logout, user } = useAuth();
   
-  const navItems = [
+  const adminNavItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Visitors', path: '/admin/visitors', icon: Users },
     { name: 'Gate Passes', path: '/admin/passes', icon: FileText },
     { name: 'Entry Logs', path: '/admin/logs', icon: Activity },
     { name: 'Blacklist', path: '/admin/blacklist', icon: ShieldAlert },
   ];
+
+  const hostNavItems = [
+    { name: 'Dashboard', path: '/host', icon: LayoutDashboard },
+  ];
+
+  const guardNavItems = [
+    { name: 'Dashboard', path: '/guard', icon: LayoutDashboard },
+    { name: 'Scan Pass', path: '/guard/scan', icon: Activity },
+  ];
+
+  let navItems = [];
+  if (user?.role === 'ADMIN') navItems = adminNavItems;
+  else if (user?.role === 'HOST') navItems = hostNavItems;
+  else if (user?.role === 'GUARD') navItems = guardNavItems;
 
   return (
     <aside className="w-64 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-gray-800 flex flex-col h-full transition-colors duration-200">
@@ -28,7 +42,7 @@ const Sidebar = () => {
           <NavLink
             key={item.name}
             to={item.path}
-            end={item.path === '/admin'}
+            end={item.path === '/admin' || item.path === '/host' || item.path === '/guard'}
             className={({ isActive }) => clsx(
               'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group',
               isActive 

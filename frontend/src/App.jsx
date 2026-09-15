@@ -3,7 +3,10 @@ import { AuthProvider } from './context/AuthContext';
 import Login from './pages/Login';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import RootRedirect from './components/RootRedirect';
 import AdminDashboard from './pages/AdminDashboard';
+import GatePass from './pages/GatePass';
+import HostDashboard from './pages/HostDashboard';
 import MouseEffect from './components/MouseEffect';
 
 function App() {
@@ -13,7 +16,7 @@ function App() {
         <MouseEffect />
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Navigate to="/admin" replace />} />
+          <Route path="/" element={<RootRedirect />} />
           
           <Route path="/admin" element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -21,7 +24,15 @@ function App() {
             </ProtectedRoute>
           }>
             <Route index element={<AdminDashboard />} />
-            {/* Other admin routes will be nested here */}
+            <Route path="passes" element={<GatePass />} />
+          </Route>
+
+          <Route path="/host" element={
+            <ProtectedRoute allowedRoles={['HOST']}>
+              <Layout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<HostDashboard />} />
           </Route>
           <Route path="/unauthorized" element={
             <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-800">

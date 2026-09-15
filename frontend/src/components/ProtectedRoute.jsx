@@ -1,9 +1,8 @@
-import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import useAuth from '../context/useAuth';
 
 
-const ProtectedRoute = ({ allowedRoles }) => {
+const ProtectedRoute = ({ allowedRoles, children }) => {
   const { user } = useAuth();
 
   if (!user) {
@@ -14,7 +13,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return <Outlet />;
+  return children ? children : <Outlet />;
 };
 
 export default ProtectedRoute;

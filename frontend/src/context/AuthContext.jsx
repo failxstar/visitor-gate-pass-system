@@ -1,7 +1,10 @@
-import { createContext, useState } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useState, useContext } from 'react';
 import api from '../api/axios';
 
 const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
 
 export default AuthContext;
 
@@ -12,7 +15,8 @@ const getInitialUser = () => {
   const role  = localStorage.getItem('role');
   const name  = localStorage.getItem('name');
   const email = localStorage.getItem('email');
-  return token && role ? { token, role, name, email } : null;
+  const id    = localStorage.getItem('id');
+  return token && role ? { token, role, name, email, id: id ? parseInt(id, 10) : null } : null;
 };
 
 export const AuthProvider = ({ children }) => {
@@ -21,12 +25,13 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
-    const { token, role, name, email: returnedEmail } = response.data;
+    const { token, role, name, email: returnedEmail, id } = response.data;
     localStorage.setItem('token', token);
     localStorage.setItem('role', role);
     localStorage.setItem('name', name);
     localStorage.setItem('email', returnedEmail);
-    setUser({ token, role, name, email: returnedEmail });
+    if (id) localStorage.setItem('id', id);
+    setUser({ token, role, name, email: returnedEmail, id });
     return role;
   };
 
@@ -35,6 +40,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('role');
     localStorage.removeItem('name');
     localStorage.removeItem('email');
+    localStorage.removeItem('id');
     setUser(null);
     window.location.href = '/login';
   };
