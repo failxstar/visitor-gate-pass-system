@@ -82,44 +82,137 @@ jobs:
       - frontend
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
-      - name: Deploy application to EC2
-        uses: appleboy/ssh-action@v1.2.2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            set -e
+          role-to-assume: arn:aws:iam::670180488372:role/VisitorGatePassGitHubSSMPolicy
+          aws-region: ap-south-1
 
-            cd ~/visitor-gate-pass-system
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
 
-            echo "Updating source code..."
-            git fetch origin main
-            git reset --hard origin/main
+      - name: Deploy through AWS Systems Manager
+        shell: bash
+        run: |
+          set -e
 
-            echo "Building backend..."
-            cd backend
-            mvn clean package -DskipTests
+          cat > /tmp/ssm-commands.sh <<'EOF'
+          #!/bin/bash
+          set -e
 
-            echo "Restarting Spring Boot..."
-            sudo systemctl restart visitor-gate-pass
+          echo "Updating source code..."
+          cd /home/ubuntu/visitor-gate-pass-system
 
-            echo "Building frontend..."
-            cd ../frontend
-            npm ci
-            npm run build
+          sudo -H -u ubuntu git fetch origin main
+          sudo -H -u ubuntu git reset --hard origin/main
 
-            echo "Updating frontend files..."
-            sudo rm -rf /var/www/visitor-gate-pass/*
-            sudo cp -r dist/* /var/www/visitor-gate-pass/
-            sudo chown -R www-data:www-data /var/www/visitor-gate-pass
+          echo "Building backend..."
+          cd /home/ubuntu/visitor-gate-pass-system/backend
+          sudo -H -u ubuntu mvn clean package -DskipTests
 
-            echo "Checking Nginx configuration..."
-            sudo nginx -t
-            sudo systemctl reload nginx
+          echo "Restarting Spring Boot..."
+          systemctl restart visitor-gate-pass
 
-            echo "Checking application health..."
-            curl -fsS http://localhost/api/health
+          echo "Building frontend..."
+          cd /home/ubuntu/visitor-gate-pass-system/frontend
+          sudo -H -u ubuntu npm ci
+          sudo -H -u ubuntu npm run build
 
-            echo "Deployment successful!"
+          echo "Updating frontend files..."
+          rm -rf /var/www/visitor-gate-pass/*
+          cp -r dist/* /var/www/visitor-gate-pass/
+          chown -R www-data:www-data /var/www/visitor-gate-pass
+
+          echo "Checking Nginx configuration..."
+          nginx -t
+          systemctl reload nginx
+
+          echo "Checking application health..."
+          curl -fsS http://localhost/api/health
+
+          echo ""
+          echo "Deployment successful!"
+          EOF
+
+          python3 - <<'PY'
+          import json
+
+          with open("/tmp/ssm-commands.sh", "r") as f:
+              script = f.read()
+
+          with open("/tmp/ssm-parameters.json", "w") as f:
+              json.dump({"commands": [script]}, f)
+          PY
+
+          echo "Sending deployment command to EC2..."
+
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids i-08dbf81ac3eb3afe3 \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy visitor-gate-pass $GITHUB_SHA" \
+            --parameters file:///tmp/ssm-parameters.json \
+            --query "Command.CommandId" \
+            --output text)
+
+          echo "SSM Command ID: $COMMAND_ID"
+
+          echo "Waiting for deployment..."
+
+          for i in {1..60}; do
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id i-08dbf81ac3eb3afe3 \
+              --query "Status" \
+              --output text)
+
+            echo "Deployment status: $STATUS"
+
+            case "$STATUS" in
+              Success)
+                echo ""
+                echo "===== DEPLOYMENT OUTPUT ====="
+
+                aws ssm get-command-invocation \
+                  --command-id "$COMMAND_ID" \
+                  --instance-id i-08dbf81ac3eb3afe3 \
+                  --query "StandardOutputContent" \
+                  --output text
+
+                echo ""
+                echo "Deployment completed successfully!"
+                exit 0
+                ;;
+
+              Failed|Cancelled|TimedOut|Cancelling)
+                echo ""
+                echo "===== DEPLOYMENT OUTPUT ====="
+
+                aws ssm get-command-invocation \
+                  --command-id "$COMMAND_ID" \
+                  --instance-id i-08dbf81ac3eb3afe3 \
+                  --query "StandardOutputContent" \
+                  --output text
+
+                echo ""
+                echo "===== DEPLOYMENT ERROR ====="
+
+                aws ssm get-command-invocation \
+                  --command-id "$COMMAND_ID" \
+                  --instance-id i-08dbf81ac3eb3afe3 \
+                  --query "StandardErrorContent" \
+                  --output text
+
+                exit 1
+                ;;
+            esac
+
+            sleep 5
+          done
+
+          echo "Deployment timed out."
+          exit 1
