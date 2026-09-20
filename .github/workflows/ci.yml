@@ -9,6 +9,11 @@ on:
       - main
 
 jobs:
+
+  # ============================================================
+  # BACKEND BUILD AND TEST
+  # ============================================================
+
   backend:
     name: Backend Build and Test
     runs-on: ubuntu-latest
@@ -16,12 +21,15 @@ jobs:
     services:
       postgres:
         image: postgres:18
+
         env:
           POSTGRES_DB: visitor_gatepass_test
           POSTGRES_USER: visitor_app
           POSTGRES_PASSWORD: siva
+
         ports:
           - 5432:5432
+
         options: >-
           --health-cmd "pg_isready -U visitor_app -d visitor_gatepass_test"
           --health-interval 10s
@@ -29,6 +37,7 @@ jobs:
           --health-retries 5
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -47,11 +56,17 @@ jobs:
           TEST_DB_PASSWORD: siva
         run: mvn clean verify
 
+
+  # ============================================================
+  # FRONTEND LINT AND BUILD
+  # ============================================================
+
   frontend:
     name: Frontend Lint and Build
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -74,6 +89,11 @@ jobs:
         working-directory: frontend
         run: npm run build
 
+
+  # ============================================================
+  # DEPLOY TO AWS EC2
+  # ============================================================
+
   deploy:
     name: Deploy to AWS EC2
     runs-on: ubuntu-latest
@@ -88,6 +108,11 @@ jobs:
       contents: read
 
     steps:
+
+      # --------------------------------------------------------
+      # Configure AWS credentials
+      # --------------------------------------------------------
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -95,22 +120,41 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
+
+      # --------------------------------------------------------
+      # Verify AWS account
+      # --------------------------------------------------------
+
       - name: Verify AWS identity
         run: |
           aws sts get-caller-identity
 
+
+      # --------------------------------------------------------
+      # Deploy through AWS Systems Manager
+      # --------------------------------------------------------
+
       - name: Deploy through AWS Systems Manager
         shell: bash
         run: |
+
           set -e
 
           cat > /tmp/ssm-commands.sh <<'EOF'
+
           #!/bin/bash
+
           set -e
+
 
           echo "========================================"
           echo "Starting deployment..."
           echo "========================================"
+
+
+          # ======================================================
+          # UPDATE SOURCE CODE
+          # ======================================================
 
           echo "Updating source code..."
 
@@ -122,6 +166,11 @@ jobs:
 
           echo "Source code updated."
 
+
+          # ======================================================
+          # BUILD BACKEND
+          # ======================================================
+
           echo "========================================"
           echo "Building backend..."
           echo "========================================"
@@ -132,13 +181,73 @@ jobs:
 
           echo "Backend build completed."
 
+
+          # ======================================================
+          # RESTART SPRING BOOT
+          # ======================================================
+
           echo "========================================"
           echo "Restarting Spring Boot..."
           echo "========================================"
 
           systemctl restart visitor-gate-pass
 
-          echo "Spring Boot restarted."
+          echo "Spring Boot restart command sent."
+
+
+          # ======================================================
+          # WAIT FOR SPRING BOOT
+          # ======================================================
+
+          echo "========================================"
+          echo "Waiting for Spring Boot to start..."
+          echo "========================================"
+
+          for i in {1..30}; do
+
+            if curl -fsS http://127.0.0.1:8080/api/health > /dev/null; then
+
+              echo "Spring Boot is healthy."
+
+              break
+
+            fi
+
+
+            if [ "$i" -eq 30 ]; then
+
+              echo "Spring Boot did not become healthy within 60 seconds."
+
+              echo "========================================"
+              echo "Spring Boot service status"
+              echo "========================================"
+
+              systemctl status visitor-gate-pass --no-pager -l
+
+              echo "========================================"
+              echo "Recent Spring Boot logs"
+              echo "========================================"
+
+              journalctl -u visitor-gate-pass -n 100 --no-pager
+
+              exit 1
+
+            fi
+
+
+            echo "Waiting for Spring Boot... ($i/30)"
+
+            sleep 2
+
+          done
+
+
+          echo "Spring Boot restarted and is healthy."
+
+
+          # ======================================================
+          # BUILD FRONTEND
+          # ======================================================
 
           echo "========================================"
           echo "Building frontend..."
@@ -152,6 +261,11 @@ jobs:
 
           echo "Frontend build completed."
 
+
+          # ======================================================
+          # UPDATE FRONTEND FILES
+          # ======================================================
+
           echo "========================================"
           echo "Updating frontend files..."
           echo "========================================"
@@ -164,6 +278,11 @@ jobs:
 
           echo "Frontend files updated."
 
+
+          # ======================================================
+          # CHECK NGINX
+          # ======================================================
+
           echo "========================================"
           echo "Checking Nginx..."
           echo "========================================"
@@ -174,6 +293,11 @@ jobs:
 
           echo "Nginx reloaded."
 
+
+          # ======================================================
+          # FINAL APPLICATION HEALTH CHECK
+          # ======================================================
+
           echo "========================================"
           echo "Checking application health..."
           echo "========================================"
@@ -182,12 +306,24 @@ jobs:
 
           echo ""
 
+
+          # ======================================================
+          # DEPLOYMENT SUCCESS
+          # ======================================================
+
           echo "========================================"
           echo "DEPLOYMENT SUCCESSFUL!"
           echo "========================================"
+
           EOF
 
+
+          # ======================================================
+          # CREATE SSM PARAMETERS
+          # ======================================================
+
           python3 - <<'PY'
+
           import json
 
           with open("/tmp/ssm-commands.sh", "r") as f:
@@ -200,9 +336,16 @@ jobs:
                   },
                   f
               )
+
           PY
 
+
+          # ======================================================
+          # SEND COMMAND TO EC2
+          # ======================================================
+
           echo "Sending deployment command to EC2..."
+
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids i-08dbf81ac3eb3afe3 \
@@ -212,9 +355,16 @@ jobs:
             --query "Command.CommandId" \
             --output text)
 
+
           echo "SSM Command ID: $COMMAND_ID"
 
+
+          # ======================================================
+          # WAIT FOR DEPLOYMENT
+          # ======================================================
+
           echo "Waiting for deployment..."
+
 
           for i in {1..60}; do
 
@@ -224,7 +374,9 @@ jobs:
               --query "Status" \
               --output text)
 
+
             echo "Deployment status: $STATUS"
+
 
             case "$STATUS" in
 
@@ -240,10 +392,13 @@ jobs:
                   --output text
 
                 echo ""
+
                 echo "Deployment completed successfully!"
 
                 exit 0
+
                 ;;
+
 
               Failed|Cancelled|TimedOut|Cancelling)
 
@@ -256,6 +411,7 @@ jobs:
                   --query "StandardOutputContent" \
                   --output text
 
+
                 echo ""
                 echo "===== DEPLOYMENT ERROR ====="
 
@@ -265,14 +421,18 @@ jobs:
                   --query "StandardErrorContent" \
                   --output text
 
+
                 exit 1
+
                 ;;
 
             esac
 
+
             sleep 5
 
           done
+
 
           echo "Deployment timed out."
 
