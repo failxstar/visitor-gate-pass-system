@@ -77,9 +77,11 @@ jobs:
   deploy:
     name: Deploy to AWS EC2
     runs-on: ubuntu-latest
+
     needs:
       - backend
       - frontend
+
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     permissions:
@@ -87,15 +89,60 @@ jobs:
       contents: read
 
     steps:
+
+      # TEMPORARY DEBUG STEP
+      # This prints only OIDC claims, NOT the secret JWT.
+      - name: Debug GitHub OIDC claims
+        run: |
+          TOKEN=$(curl -sSf \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)['value'])")
+
+          python3 - "$TOKEN" <<'PY'
+          import sys
+          import json
+          import base64
+
+          token = sys.argv[1]
+
+          payload = token.split('.')[1]
+          payload += '=' * (-len(payload) % 4)
+
+          claims = json.loads(
+              base64.urlsafe_b64decode(payload)
+          )
+
+          print("")
+          print("===== GitHub OIDC Claims =====")
+
+          for key in [
+              "sub",
+              "aud",
+              "repository",
+              "repository_id",
+              "repository_owner",
+              "repository_owner_id",
+              "ref"
+          ]:
+              print(f"{key}: {claims.get(key)}")
+
+          print("==============================")
+          PY
+
+      # AWS OIDC LOGIN
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::670180488372:role/VisitorGatePassGitHubSSMPolicy
           aws-region: ap-south-1
 
+      # CHECK AWS LOGIN
       - name: Verify AWS identity
-        run: aws sts get-caller-identity
+        run: |
+          aws sts get-caller-identity
 
+      # DEPLOY THROUGH AWS SSM
       - name: Deploy through AWS Systems Manager
         shell: bash
         run: |
@@ -105,38 +152,83 @@ jobs:
           #!/bin/bash
           set -e
 
+          echo "========================================"
+          echo "Starting deployment..."
+          echo "========================================"
+
           echo "Updating source code..."
+
           cd /home/ubuntu/visitor-gate-pass-system
 
           sudo -H -u ubuntu git fetch origin main
+
           sudo -H -u ubuntu git reset --hard origin/main
 
+          echo "Source code updated."
+
+          echo "========================================"
           echo "Building backend..."
+          echo "========================================"
+
           cd /home/ubuntu/visitor-gate-pass-system/backend
+
           sudo -H -u ubuntu mvn clean package -DskipTests
 
+          echo "Backend build completed."
+
+          echo "========================================"
           echo "Restarting Spring Boot..."
+          echo "========================================"
+
           systemctl restart visitor-gate-pass
 
+          echo "Spring Boot restarted."
+
+          echo "========================================"
           echo "Building frontend..."
+          echo "========================================"
+
           cd /home/ubuntu/visitor-gate-pass-system/frontend
+
           sudo -H -u ubuntu npm ci
+
           sudo -H -u ubuntu npm run build
 
+          echo "Frontend build completed."
+
+          echo "========================================"
           echo "Updating frontend files..."
+          echo "========================================"
+
           rm -rf /var/www/visitor-gate-pass/*
+
           cp -r dist/* /var/www/visitor-gate-pass/
+
           chown -R www-data:www-data /var/www/visitor-gate-pass
 
-          echo "Checking Nginx configuration..."
+          echo "Frontend files updated."
+
+          echo "========================================"
+          echo "Checking Nginx..."
+          echo "========================================"
+
           nginx -t
+
           systemctl reload nginx
 
+          echo "Nginx reloaded."
+
+          echo "========================================"
           echo "Checking application health..."
+          echo "========================================"
+
           curl -fsS http://localhost/api/health
 
           echo ""
-          echo "Deployment successful!"
+
+          echo "========================================"
+          echo "DEPLOYMENT SUCCESSFUL!"
+          echo "========================================"
           EOF
 
           python3 - <<'PY'
@@ -146,7 +238,12 @@ jobs:
               script = f.read()
 
           with open("/tmp/ssm-parameters.json", "w") as f:
-              json.dump({"commands": [script]}, f)
+              json.dump(
+                  {
+                      "commands": [script]
+                  },
+                  f
+              )
           PY
 
           echo "Sending deployment command to EC2..."
@@ -164,6 +261,7 @@ jobs:
           echo "Waiting for deployment..."
 
           for i in {1..60}; do
+
             STATUS=$(aws ssm get-command-invocation \
               --command-id "$COMMAND_ID" \
               --instance-id i-08dbf81ac3eb3afe3 \
@@ -173,7 +271,9 @@ jobs:
             echo "Deployment status: $STATUS"
 
             case "$STATUS" in
+
               Success)
+
                 echo ""
                 echo "===== DEPLOYMENT OUTPUT ====="
 
@@ -185,10 +285,12 @@ jobs:
 
                 echo ""
                 echo "Deployment completed successfully!"
+
                 exit 0
                 ;;
 
               Failed|Cancelled|TimedOut|Cancelling)
+
                 echo ""
                 echo "===== DEPLOYMENT OUTPUT ====="
 
@@ -209,10 +311,13 @@ jobs:
 
                 exit 1
                 ;;
+
             esac
 
             sleep 5
+
           done
 
           echo "Deployment timed out."
+
           exit 1
