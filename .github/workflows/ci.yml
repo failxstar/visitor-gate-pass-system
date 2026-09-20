@@ -89,60 +89,16 @@ jobs:
       contents: read
 
     steps:
-
-      # TEMPORARY DEBUG STEP
-      # This prints only OIDC claims, NOT the secret JWT.
-      - name: Debug GitHub OIDC claims
-        run: |
-          TOKEN=$(curl -sSf \
-            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" \
-            | python3 -c "import sys,json; print(json.load(sys.stdin)['value'])")
-
-          python3 - "$TOKEN" <<'PY'
-          import sys
-          import json
-          import base64
-
-          token = sys.argv[1]
-
-          payload = token.split('.')[1]
-          payload += '=' * (-len(payload) % 4)
-
-          claims = json.loads(
-              base64.urlsafe_b64decode(payload)
-          )
-
-          print("")
-          print("===== GitHub OIDC Claims =====")
-
-          for key in [
-              "sub",
-              "aud",
-              "repository",
-              "repository_id",
-              "repository_owner",
-              "repository_owner_id",
-              "ref"
-          ]:
-              print(f"{key}: {claims.get(key)}")
-
-          print("==============================")
-          PY
-
-      # AWS OIDC LOGIN
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::670180488372:role/VisitorGatePassGitHubSSMPolicy
           aws-region: ap-south-1
 
-      # CHECK AWS LOGIN
       - name: Verify AWS identity
         run: |
           aws sts get-caller-identity
 
-      # DEPLOY THROUGH AWS SSM
       - name: Deploy through AWS Systems Manager
         shell: bash
         run: |
