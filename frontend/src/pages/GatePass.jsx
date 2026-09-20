@@ -1,15 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { gatePassApi } from '../api/gatePassApi';
 
 function GatePass() {
     const [passes, setPasses] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchPasses();
-    }, []);
-
-    const fetchPasses = async () => {
+    const fetchPasses = useCallback(async () => {
         try {
             const data = await gatePassApi.getAllGatePasses();
             setPasses(data);
@@ -18,7 +14,34 @@ function GatePass() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadPasses = async () => {
+            try {
+                const data = await gatePassApi.getAllGatePasses();
+                if (!cancelled) {
+                    setPasses(data);
+                }
+            } catch (error) {
+                if (!cancelled) {
+                    console.error("Failed to fetch passes", error);
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadPasses();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const handleStatusChange = async (id, status) => {
         try {

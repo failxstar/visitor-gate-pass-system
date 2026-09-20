@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { gatePassApi } from '../api/gatePassApi';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,13 +7,12 @@ function HostDashboard() {
     const [passes, setPasses] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (user && user.id) {
-            fetchMyPasses();
+    const fetchMyPasses = useCallback(async () => {
+        if (!user?.id) {
+            setLoading(false);
+            return;
         }
-    }, [user]);
 
-    const fetchMyPasses = async () => {
         try {
             const data = await gatePassApi.getGatePassesByHostId(user.id);
             setPasses(data);
@@ -22,7 +21,41 @@ function HostDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadPasses = async () => {
+            if (!user?.id) {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+                return;
+            }
+
+            try {
+                const data = await gatePassApi.getGatePassesByHostId(user.id);
+                if (!cancelled) {
+                    setPasses(data);
+                }
+            } catch (error) {
+                if (!cancelled) {
+                    console.error("Failed to fetch passes", error);
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadPasses();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [user]);
 
     const handleStatusChange = async (id, status) => {
         try {

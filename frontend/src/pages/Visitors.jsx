@@ -24,7 +24,32 @@ const Visitors = () => {
   };
 
   useEffect(() => {
-    loadData();
+    let cancelled = false;
+
+    const fetchVisitors = async () => {
+      try {
+        const data = await visitorApi.getAllVisitors();
+
+        if (!cancelled) {
+          setVisitors(data);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.response?.data?.message || 'Failed to fetch visitors.');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchVisitors();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
