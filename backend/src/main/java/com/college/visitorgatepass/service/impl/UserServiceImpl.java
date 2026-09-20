@@ -101,4 +101,16 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
+
+    @Override
+    public List<com.college.visitorgatepass.dto.UserResponseDTO> getAllHosts() {
+        return userRepository.findByRole(com.college.visitorgatepass.model.enums.Role.HOST).stream()
+                .map(user -> com.college.visitorgatepass.dto.UserResponseDTO.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .role(user.getRole().name())
+                        .build())
+                .toList();
+    }
 }

@@ -40,6 +40,9 @@ public class GatePass {
     @Column(nullable = false)
     private PassStatus status;
 
+    @Column(name = "secure_token", unique = true)
+    private String secureToken;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

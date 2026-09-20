@@ -17,6 +17,12 @@ import java.util.List;
 public class VisitorController {
 
     private final VisitorService visitorService;
+    private final com.college.visitorgatepass.service.UserService userService;
+
+    @GetMapping("/hosts")
+    public ResponseEntity<List<com.college.visitorgatepass.dto.UserResponseDTO>> getAllHosts() {
+        return ResponseEntity.ok(userService.getAllHosts());
+    }
 
     @PostMapping("/request")
     public ResponseEntity<VisitorResponseDTO> registerVisitor(@Valid @RequestBody VisitorRequestDTO visitorRequestDTO) {

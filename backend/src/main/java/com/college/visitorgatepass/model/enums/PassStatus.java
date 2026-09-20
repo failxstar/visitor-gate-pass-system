@@ -4,5 +4,7 @@ public enum PassStatus {
     PENDING,
     APPROVED,
     REJECTED,
-    EXPIRED
+    EXPIRED,
+    CHECKED_IN,
+    CHECKED_OUT
 }

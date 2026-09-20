@@ -1,7 +1,7 @@
 package com.college.visitorgatepass.controller;
 
 import com.college.visitorgatepass.dto.DashboardStatsDTO;
-import com.college.visitorgatepass.model.entity.GatePass;
+import com.college.visitorgatepass.dto.GatePassResponse;
 import com.college.visitorgatepass.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +29,8 @@ public class DashboardController {
     }
 
     @GetMapping("/recent-activity")
-    public ResponseEntity<List<GatePass>> getRecentActivity() {
-        List<GatePass> recentPasses = dashboardService.getRecentGatePasses();
+    public ResponseEntity<List<GatePassResponse>> getRecentActivity() {
+        List<GatePassResponse> recentPasses = dashboardService.getRecentGatePasses();
         return ResponseEntity.ok(recentPasses);
     }
 }

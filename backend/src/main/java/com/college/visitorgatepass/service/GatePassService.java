@@ -13,4 +13,5 @@ public interface GatePassService {
     List<GatePassResponse> getGatePassesByHostId(Long hostId);
     List<GatePassResponse> getGatePassesByVisitorId(Long visitorId);
     GatePassResponse updatePassStatus(Long id, PassStatus status);
+    GatePassResponse getGatePassByToken(String token);
 }

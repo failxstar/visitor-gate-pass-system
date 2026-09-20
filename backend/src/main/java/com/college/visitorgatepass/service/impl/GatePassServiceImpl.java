@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +43,7 @@ public class GatePassServiceImpl implements GatePassService {
                 .validFrom(request.getValidFrom())
                 .validTo(request.getValidTo())
                 .status(PassStatus.PENDING)
+                .secureToken(UUID.randomUUID().toString())
                 .build();
 
         GatePass savedPass = gatePassRepository.save(gatePass);
@@ -83,8 +85,16 @@ public class GatePassServiceImpl implements GatePassService {
                 .orElseThrow(() -> new ResourceNotFoundException("Gate Pass not found with id: " + id));
         
         gatePass.setStatus(status);
+
         GatePass updatedPass = gatePassRepository.save(gatePass);
         return mapToResponse(updatedPass);
+    }
+
+    @Override
+    public GatePassResponse getGatePassByToken(String token) {
+        GatePass gatePass = gatePassRepository.findBySecureToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Gate Pass not found for the provided token"));
+        return mapToResponse(gatePass);
     }
 
     private GatePassResponse mapToResponse(GatePass gatePass) {
@@ -92,12 +102,16 @@ public class GatePassServiceImpl implements GatePassService {
                 .id(gatePass.getId())
                 .visitorId(gatePass.getVisitor().getId())
                 .visitorName(gatePass.getVisitor().getName())
+                .visitorPhone(gatePass.getVisitor().getPhone())
+                .visitorEmail(gatePass.getVisitor().getEmail())
                 .hostId(gatePass.getHost().getId())
                 .hostName(gatePass.getHost().getName())
+                .hostEmail(gatePass.getHost().getEmail())
                 .purpose(gatePass.getPurpose())
                 .validFrom(gatePass.getValidFrom())
                 .validTo(gatePass.getValidTo())
                 .status(gatePass.getStatus())
+                .secureToken(gatePass.getSecureToken())
                 .createdAt(gatePass.getCreatedAt())
                 .build();
     }

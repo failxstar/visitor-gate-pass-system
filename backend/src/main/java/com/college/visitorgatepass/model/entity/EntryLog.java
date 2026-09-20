@@ -19,8 +19,9 @@ public class EntryLog {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gate_pass_id", nullable = false)
+    @JoinColumn(name = "gate_pass_id")
     private GatePass gatePass;
+
 
     @Column(name = "check_in_time", nullable = false)
     private LocalDateTime checkInTime;

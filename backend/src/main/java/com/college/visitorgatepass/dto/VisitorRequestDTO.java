@@ -18,6 +18,8 @@ public class VisitorRequestDTO {
     @NotBlank(message = "Phone number is required")
     private String phone;
 
+    private String email;
+
     private String idProofNumber;
 
     private String photoUrl;

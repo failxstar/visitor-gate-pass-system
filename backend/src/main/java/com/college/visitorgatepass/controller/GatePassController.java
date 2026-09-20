@@ -55,4 +55,13 @@ public class GatePassController {
         PassStatus status = PassStatus.valueOf(statusMap.get("status").toUpperCase());
         return ResponseEntity.ok(gatePassService.updatePassStatus(id, status));
     }
+
+    /**
+     * Public endpoint — no authentication required.
+     * Visitor uses their secure token to track/view their gate pass.
+     */
+    @GetMapping("/track/{token}")
+    public ResponseEntity<GatePassResponse> trackGatePass(@PathVariable String token) {
+        return ResponseEntity.ok(gatePassService.getGatePassByToken(token));
+    }
 }

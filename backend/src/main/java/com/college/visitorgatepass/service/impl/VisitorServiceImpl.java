@@ -26,6 +26,7 @@ public class VisitorServiceImpl implements VisitorService {
         Visitor visitor = Visitor.builder()
                 .name(dto.getName())
                 .phone(dto.getPhone())
+                .email(dto.getEmail())
                 .idProofNumber(dto.getIdProofNumber())
                 .photoUrl(dto.getPhotoUrl())
                 .build();
@@ -60,6 +61,7 @@ public class VisitorServiceImpl implements VisitorService {
                 .id(visitor.getId())
                 .name(visitor.getName())
                 .phone(visitor.getPhone())
+                .email(visitor.getEmail())
                 .idProofNumber(visitor.getIdProofNumber())
                 .photoUrl(visitor.getPhotoUrl())
                 .createdAt(visitor.getCreatedAt())

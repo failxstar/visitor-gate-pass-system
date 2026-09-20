@@ -13,4 +13,5 @@ public interface UserService {
     List<User> getAllUsers();
     User getUserById(Long id);
     User getUserByEmail(String email);
+    List<com.college.visitorgatepass.dto.UserResponseDTO> getAllHosts();
 }

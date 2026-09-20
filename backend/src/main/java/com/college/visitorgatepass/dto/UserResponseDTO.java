@@ -5,19 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VisitorResponseDTO {
-
+public class UserResponseDTO {
     private Long id;
     private String name;
-    private String phone;
     private String email;
-    private String idProofNumber;
-    private String photoUrl;
-    private LocalDateTime createdAt;
+    private String role;
 }

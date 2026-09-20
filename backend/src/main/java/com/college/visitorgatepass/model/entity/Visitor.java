@@ -27,6 +27,8 @@ public class Visitor {
     @Column(nullable = false)
     private String phone;
 
+    private String email;
+
     @Column(name = "id_proof_number")
     private String idProofNumber;
 

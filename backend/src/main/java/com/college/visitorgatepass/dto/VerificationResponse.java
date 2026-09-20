@@ -12,19 +12,16 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GatePassResponse {
-    private Long id;
-    private Long visitorId;
+public class VerificationResponse {
+    private boolean valid;
+    private String message;
+    private Long gatePassId;
     private String visitorName;
     private String visitorPhone;
-    private String visitorEmail;
-    private Long hostId;
     private String hostName;
-    private String hostEmail;
     private String purpose;
     private LocalDateTime validFrom;
     private LocalDateTime validTo;
     private PassStatus status;
-    private String secureToken;
-    private LocalDateTime createdAt;
+    private boolean alreadyCheckedIn;
 }

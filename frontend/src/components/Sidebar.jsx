@@ -8,6 +8,7 @@ const Sidebar = () => {
   
   const adminNavItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+    { name: 'Staff Management', path: '/admin/users', icon: Users },
     { name: 'Visitors', path: '/admin/visitors', icon: Users },
     { name: 'Gate Passes', path: '/admin/passes', icon: FileText },
     { name: 'Entry Logs', path: '/admin/logs', icon: Activity },
@@ -19,8 +20,7 @@ const Sidebar = () => {
   ];
 
   const guardNavItems = [
-    { name: 'Dashboard', path: '/guard', icon: LayoutDashboard },
-    { name: 'Scan Pass', path: '/guard/scan', icon: Activity },
+    { name: 'Security Console', path: '/guard', icon: ShieldAlert },
   ];
 
   let navItems = [];
