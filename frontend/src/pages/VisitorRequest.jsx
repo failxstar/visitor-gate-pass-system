@@ -42,6 +42,18 @@ const VisitorRequest = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.startTime >= formData.endTime) {
+      setStatus({ type: 'error', message: 'End time must be after start time.' });
+      return;
+    }
+
+    const validToDate = new Date(`${formData.visitDate}T${formData.endTime}`);
+    if (validToDate <= new Date()) {
+      setStatus({ type: 'error', message: 'End time must be in the future.' });
+      return;
+    }
+
     setLoading(true);
     setStatus({ type: '', message: '' });
     
