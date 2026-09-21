@@ -7,8 +7,17 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import com.college.visitorgatepass.repository.UserRepository;
 
+import jakarta.annotation.PostConstruct;
+import java.util.TimeZone;
+
 @SpringBootApplication
 public class VisitorGatePassApplication {
+
+    @PostConstruct
+    public void init(){
+        // Set JVM timezone to IST (Asia/Kolkata) so LocalDateTime.now() matches frontend time
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(VisitorGatePassApplication.class, args);
