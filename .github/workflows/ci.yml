@@ -122,7 +122,7 @@ jobs:
 
 
       # --------------------------------------------------------
-      # Verify AWS account
+      # Verify AWS identity
       # --------------------------------------------------------
 
       - name: Verify AWS identity
@@ -203,7 +203,7 @@ jobs:
           echo "Waiting for Spring Boot to start..."
           echo "========================================"
 
-          for i in {1..30}; do
+          for i in $(seq 1 30); do
 
             if curl -fsS http://127.0.0.1:8080/api/health > /dev/null; then
 
@@ -366,7 +366,7 @@ jobs:
           echo "Waiting for deployment..."
 
 
-          for i in {1..60}; do
+          for i in $(seq 1 60); do
 
             STATUS=$(aws ssm get-command-invocation \
               --command-id "$COMMAND_ID" \
