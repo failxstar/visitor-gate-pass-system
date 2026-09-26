@@ -23,4 +23,16 @@
     background: rgba(17, 24, 39, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
+
+  /* Make QR Scanner responsive */
+  #reader {
+    width: 100% !important;
+    border: none !important;
+  }
+  
+  #reader video {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover;
+  }
 }

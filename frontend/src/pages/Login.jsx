@@ -83,8 +83,9 @@ const Login = () => {
         backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
         borderRadius:'28px',
         border:'1px solid rgba(255, 255, 255, 0.1)',  // Subtle edge highlight
-        padding:'2.25rem 2rem',
+        padding:'2.25rem clamp(1.25rem, 5vw, 2rem)',
         boxShadow:'0 32px 64px rgba(0,0,0,0.5)',      // Stronger shadow for depth
+        boxSizing: 'border-box',
       }}>
 
 

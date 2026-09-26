@@ -1,9 +1,9 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, Activity, ShieldAlert, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Activity, ShieldAlert, LogOut, X } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '../context/AuthContext';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, setIsOpen }) => {
   const { logout, user } = useAuth();
   
   const adminNavItems = [
@@ -29,15 +29,33 @@ const Sidebar = () => {
   else if (user?.role === 'GUARD') navItems = guardNavItems;
 
   return (
-    <aside className="w-64 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-gray-800 flex flex-col h-full transition-colors duration-200">
-      <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-          <ShieldAlert size={28} />
-          <span className="text-xl font-bold text-gray-900 dark:text-white">GateGuard</span>
-        </div>
-      </div>
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
       
-      <div className="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
+      <aside className={clsx(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-gray-800 flex flex-col h-full transition-transform duration-300 ease-in-out lg:static lg:translate-x-0",
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+            <ShieldAlert size={28} />
+            <span className="text-xl font-bold text-gray-900 dark:text-white">GateGuard</span>
+          </div>
+          <button 
+            onClick={() => setIsOpen(false)}
+            className="lg:hidden p-2 -mr-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-dark-700"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        
+        <div className="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
         {navItems.map((item) => (
           <NavLink
             key={item.name}
@@ -70,6 +88,7 @@ const Sidebar = () => {
         </button>
       </div>
     </aside>
+    </>
   );
 };
 
