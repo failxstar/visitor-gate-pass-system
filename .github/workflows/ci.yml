@@ -255,7 +255,7 @@ jobs:
 
           cd /home/ubuntu/visitor-gate-pass-system/frontend
 
-          sudo -H -u ubuntu npm ci
+          sudo -H -u ubuntu npm install
 
           sudo -H -u ubuntu npm run build
 
