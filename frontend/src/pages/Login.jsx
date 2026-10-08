@@ -25,11 +25,6 @@ const Login = () => {
   const handleRoleChange = (e) => {
     const selected = e.target.value;
     setRole(selected);
-    if (selected && ROLE_CREDENTIALS[selected]) {
-      setEmail(ROLE_CREDENTIALS[selected].email);
-    } else {
-      setEmail('');
-    }
   };
 
   const handleLogin = async (e) => {
