@@ -4,11 +4,7 @@ import { Eye, EyeOff, Loader2, ChevronDown } from 'lucide-react';
 import useAuth from '../context/useAuth';
 
 
-const ROLE_CREDENTIALS = {
-  ADMIN:  { email: 'admin@college.edu',  label: 'Administrator' },
-  GUARD:  { email: 'guard@college.edu',  label: 'Security Guard' },
-  HOST:   { email: 'host@college.edu',   label: 'Host / Faculty' },
-};
+
 
 const Login = () => {
   const [email, setEmail]               = useState('');
