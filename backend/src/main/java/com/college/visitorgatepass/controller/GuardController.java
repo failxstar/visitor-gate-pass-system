@@ -13,6 +13,7 @@ import com.college.visitorgatepass.repository.GuardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/guard")
 @RequiredArgsConstructor
+@Transactional
 public class GuardController {
 
     private final GatePassRepository gatePassRepository;
