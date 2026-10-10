@@ -7,6 +7,7 @@ import com.college.visitorgatepass.model.entity.GatePass;
 import com.college.visitorgatepass.model.entity.Host;
 import com.college.visitorgatepass.model.entity.Visitor;
 import com.college.visitorgatepass.model.enums.PassStatus;
+import com.college.visitorgatepass.repository.BlacklistRepository;
 import com.college.visitorgatepass.repository.GatePassRepository;
 import com.college.visitorgatepass.repository.HostRepository;
 import com.college.visitorgatepass.repository.VisitorRepository;
@@ -26,12 +27,17 @@ public class GatePassServiceImpl implements GatePassService {
     private final GatePassRepository gatePassRepository;
     private final VisitorRepository visitorRepository;
     private final HostRepository hostRepository;
+    private final BlacklistRepository blacklistRepository;
 
     @Override
     @Transactional
     public GatePassResponse createGatePass(GatePassRequest request) {
         Visitor visitor = visitorRepository.findById(request.getVisitorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Visitor not found with id: " + request.getVisitorId()));
+
+        if (blacklistRepository.existsByVisitorPhone(visitor.getPhone())) {
+            throw new RuntimeException("This visitor has been blacklisted and cannot request a gate pass.");
+        }
 
         Host host = hostRepository.findById(request.getHostId())
                 .orElseThrow(() -> new ResourceNotFoundException("Host not found with id: " + request.getHostId()));
