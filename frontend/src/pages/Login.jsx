@@ -1,10 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, ChevronDown } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ChevronDown, ShieldCheck, QrCode, UserCheck, Clock } from 'lucide-react';
 import useAuth from '../context/useAuth';
 
-
-
+const GUIDE_SLIDES = [
+  {
+    id: 1,
+    icon: <ShieldCheck size={56} color="#a78bfa" />,
+    title: "Role-Based Security",
+    desc: "Dedicated and secure portals tailored for Administrators, Security Guards, and Hosts."
+  },
+  {
+    id: 2,
+    icon: <QrCode size={56} color="#60a5fa" />,
+    title: "Quick QR Access",
+    desc: "Seamless entry and exit for visitors using instant QR code scanning and verification."
+  },
+  {
+    id: 3,
+    icon: <UserCheck size={56} color="#34d399" />,
+    title: "Host Approvals",
+    desc: "Faculty and staff can review, manage, and pre-approve their visitors easily."
+  },
+  {
+    id: 4,
+    icon: <Clock size={56} color="#fbbf24" />,
+    title: "Real-Time Tracking",
+    desc: "Monitor visitor movements with precision logs and a live, real-time dashboard."
+  }
+];
 
 const Login = () => {
   const [email, setEmail]               = useState('');
@@ -14,9 +38,17 @@ const Login = () => {
   const [rememberMe, setRememberMe]     = useState(false);
   const [loading, setLoading]           = useState(false);
   const [error, setError]               = useState('');
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % GUIDE_SLIDES.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleRoleChange = (e) => {
     const selected = e.target.value;
@@ -40,16 +72,14 @@ const Login = () => {
     }
   };
 
-  /* ─── styles ─────────────────────────────────────────────── */
-    const input = {
+  const input = {
     width: '100%', padding: '0.8rem 1rem',
-    background: 'rgba(0, 0, 0, 0.2)',                 // Changed to dark transparency
-    border: '1px solid rgba(255, 255, 255, 0.08)',    // Much more subtle border
+    background: 'rgba(0, 0, 0, 0.2)',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
     borderRadius: '12px', color: 'white',
     fontSize: '0.95rem', outline: 'none',
     boxSizing: 'border-box', transition: 'border 0.2s',
   };
-
 
   return (
     <div style={{
@@ -67,201 +97,294 @@ const Login = () => {
       <div style={{ position:'fixed', top:'40%', left:'30%', width:'200px', height:'200px',
         borderRadius:'50%', background:'rgba(167,139,250,0.15)', filter:'blur(60px)', zIndex:0 }} />
 
-              <div style={{
-        position:'relative', zIndex:1,
-        width:'100%', maxWidth:'550px',
-        background:'rgba(255, 255, 255, 0.04)',       // Lowered the white opacity
-        backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
-        borderRadius:'28px',
-        border:'1px solid rgba(255, 255, 255, 0.1)',  // Subtle edge highlight
-        padding:'2.25rem clamp(1.25rem, 5vw, 2rem)',
-        boxShadow:'0 32px 64px rgba(0,0,0,0.5)',      // Stronger shadow for depth
-        boxSizing: 'border-box',
-      }}>
+      <div className="login-container" style={{ position: 'relative', zIndex: 1 }}>
+        
+        {/* ── Dynamic Guide Section ── */}
+        <div className="guide-section">
+          <div className="guide-content">
+            <h2 style={{ color: 'white', fontSize: '1.8rem', fontWeight: '800', marginBottom: '0.5rem', lineHeight: '1.2' }}>
+              Visitor Management, <br/><span style={{ color: '#a78bfa' }}>Simplified.</span>
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem', marginBottom: '3rem' }}>
+              Experience a modern, secure, and lightning-fast way to manage campus entries.
+            </p>
+            
+            <div style={{ position: 'relative', height: '180px' }}>
+              {GUIDE_SLIDES.map((slide, index) => (
+                <div 
+                  key={slide.id}
+                  className={`slide ${index === currentSlide ? 'active' : ''}`}
+                  style={{
+                    position: 'absolute',
+                    top: 0, left: 0, width: '100%',
+                    opacity: index === currentSlide ? 1 : 0,
+                    transform: index === currentSlide ? 'translateY(0)' : 'translateY(20px)',
+                    transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                    pointerEvents: index === currentSlide ? 'auto' : 'none'
+                  }}
+                >
+                  <div style={{
+                    width: '80px', height: '80px', borderRadius: '20px',
+                    background: 'rgba(255,255,255,0.08)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.1)'
+                  }}>
+                    {slide.icon}
+                  </div>
+                  <h3 style={{ color: 'white', fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.5rem' }}>
+                    {slide.title}
+                  </h3>
+                  <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.9rem', lineHeight: '1.5', maxWidth: '90%' }}>
+                    {slide.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
 
-
-        {/* ── Logo ── */}
-        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', marginBottom:'1.5rem' }}>
-          <div style={{
-            width:'80px', height:'80px', borderRadius:'50%',
-            background:'rgba(255,255,255,0.18)',
-            border:'2px solid rgba(255,255,255,0.35)',
-            display:'flex', alignItems:'center', justifyContent:'center',
-            marginBottom:'1rem',
-            boxShadow:'0 8px 32px rgba(0,0,0,0.25)',
-            overflow:'hidden',
-          }}>
-            <img
-              src="/college-logo.png"
-              alt="College Logo"
-              style={{ width:'64px', height:'64px', objectFit:'contain', borderRadius:'50%' }}
-              onError={e => {
-                e.target.style.display = 'none';
-                e.target.parentNode.innerHTML = '<span style="font-size:2.2rem">🛡️</span>';
-              }}
-            />
-          </div>
-
-          <h1 style={{
-            color:'white', fontSize:'2rem', fontWeight:'800',
-            margin:0, letterSpacing:'-0.03em', textAlign:'center',
-          }}>
-            Welcome Back
-          </h1>
-          <p style={{ color:'rgba(255,255,255,0.7)', fontSize:'0.83rem', marginTop:'0.4rem', textAlign:'center' }}>
-            Visitor Entry &amp; Gate Pass System
-          </p>
-        </div>
-
-        {/* ── Error ── */}
-        {error && (
-          <div style={{
-            background:'rgba(239,68,68,0.2)', border:'1px solid rgba(239,68,68,0.45)',
-            color:'#fecaca', padding:'0.7rem 1rem', borderRadius:'10px',
-            fontSize:'0.85rem', marginBottom:'1.1rem',
-          }}>
-            ⚠️ {error}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} style={{ display:'flex', flexDirection:'column', gap:'1.1rem' }}>
-
-          {/* ── Role Dropdown ── */}
-          <div>
-            <label style={{ display:'block', color:'rgba(255,255,255,0.88)', fontSize:'0.83rem', fontWeight:'600', marginBottom:'0.45rem', letterSpacing:'0.02em' }}>
-              SELECT ROLE
-            </label>
-            <div style={{ position:'relative' }}>
-              <select
-                value={role}
-                onChange={handleRoleChange}
-                required
-                style={{
-                  ...input,
-                  appearance:'none', WebkitAppearance:'none',
-                  cursor:'pointer', paddingRight:'2.5rem',
-                  color: role ? 'white' : 'rgba(255,255,255,0.45)',
-                }}
-              >
-                <option value="" disabled style={{ background:'#4f46e5', color:'rgba(255,255,255,0.5)' }}>
-                  Choose your role...
-                </option>
-                <option value="ADMIN" style={{ background:'#4f46e5', color:'white' }}>🔐 Administrator</option>
-                <option value="GUARD" style={{ background:'#4f46e5', color:'white' }}>👮 Security Guard</option>
-                <option value="HOST"  style={{ background:'#4f46e5', color:'white' }}>🎓 Host / Faculty</option>
-              </select>
-              <ChevronDown size={18} color="rgba(255,255,255,0.6)" style={{ position:'absolute', right:'0.85rem', top:'50%', transform:'translateY(-50%)', pointerEvents:'none' }} />
+            {/* Slide Indicators */}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
+              {GUIDE_SLIDES.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentSlide(idx)}
+                  style={{
+                    width: idx === currentSlide ? '24px' : '8px',
+                    height: '8px',
+                    borderRadius: '4px',
+                    background: idx === currentSlide ? '#a78bfa' : 'rgba(255,255,255,0.2)',
+                    border: 'none',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer',
+                    padding: 0
+                  }}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
             </div>
           </div>
+        </div>
 
-          {/* ── Email ── */}
-          <div>
-            <label style={{ display:'block', color:'rgba(255,255,255,0.88)', fontSize:'0.83rem', fontWeight:'600', marginBottom:'0.45rem', letterSpacing:'0.02em' }}>
-              EMAIL ADDRESS
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              placeholder="Enter your email"
-              style={input}
-              onFocus={e => e.target.style.border = '1px solid rgba(255,255,255,0.7)'}
-              onBlur={e  => e.target.style.border = '1px solid rgba(255,255,255,0.28)'}
-            />
+        {/* ── Login Form Section ── */}
+        <div className="form-section">
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', marginBottom:'1.5rem' }}>
+            <div style={{
+              width:'80px', height:'80px', borderRadius:'50%',
+              background:'rgba(255,255,255,0.18)',
+              border:'2px solid rgba(255,255,255,0.35)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              marginBottom:'1rem',
+              boxShadow:'0 8px 32px rgba(0,0,0,0.25)',
+              overflow:'hidden',
+            }}>
+              <img
+                src="/college-logo.png"
+                alt="College Logo"
+                style={{ width:'64px', height:'64px', objectFit:'contain', borderRadius:'50%' }}
+                onError={e => {
+                  e.target.style.display = 'none';
+                  e.target.parentNode.innerHTML = '<span style="font-size:2.2rem">🛡️</span>';
+                }}
+              />
+            </div>
+
+            <h1 style={{
+              color:'white', fontSize:'2rem', fontWeight:'800',
+              margin:0, letterSpacing:'-0.03em', textAlign:'center',
+            }}>
+              Welcome Back
+            </h1>
+            <p style={{ color:'rgba(255,255,255,0.7)', fontSize:'0.83rem', marginTop:'0.4rem', textAlign:'center' }}>
+              Log in to your account
+            </p>
           </div>
 
-          {/* ── Password ── */}
-          <div>
-            <label style={{ display:'block', color:'rgba(255,255,255,0.88)', fontSize:'0.83rem', fontWeight:'600', marginBottom:'0.45rem', letterSpacing:'0.02em' }}>
-              PASSWORD
-            </label>
-            <div style={{ position:'relative' }}>
+          {error && (
+            <div style={{
+              background:'rgba(239,68,68,0.2)', border:'1px solid rgba(239,68,68,0.45)',
+              color:'#fecaca', padding:'0.7rem 1rem', borderRadius:'10px',
+              fontSize:'0.85rem', marginBottom:'1.1rem',
+            }}>
+              ⚠️ {error}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} style={{ display:'flex', flexDirection:'column', gap:'1.1rem' }}>
+            <div>
+              <label style={{ display:'block', color:'rgba(255,255,255,0.88)', fontSize:'0.83rem', fontWeight:'600', marginBottom:'0.45rem', letterSpacing:'0.02em' }}>
+                SELECT ROLE
+              </label>
+              <div style={{ position:'relative' }}>
+                <select
+                  value={role}
+                  onChange={handleRoleChange}
+                  required
+                  style={{
+                    ...input,
+                    appearance:'none', WebkitAppearance:'none',
+                    cursor:'pointer', paddingRight:'2.5rem',
+                    color: role ? 'white' : 'rgba(255,255,255,0.45)',
+                  }}
+                >
+                  <option value="" disabled style={{ background:'#4f46e5', color:'rgba(255,255,255,0.5)' }}>
+                    Choose your role...
+                  </option>
+                  <option value="ADMIN" style={{ background:'#4f46e5', color:'white' }}>🔐 Administrator</option>
+                  <option value="GUARD" style={{ background:'#4f46e5', color:'white' }}>👮 Security Guard</option>
+                  <option value="HOST"  style={{ background:'#4f46e5', color:'white' }}>🎓 Host / Faculty</option>
+                </select>
+                <ChevronDown size={18} color="rgba(255,255,255,0.6)" style={{ position:'absolute', right:'0.85rem', top:'50%', transform:'translateY(-50%)', pointerEvents:'none' }} />
+              </div>
+            </div>
+
+            <div>
+              <label style={{ display:'block', color:'rgba(255,255,255,0.88)', fontSize:'0.83rem', fontWeight:'600', marginBottom:'0.45rem', letterSpacing:'0.02em' }}>
+                EMAIL ADDRESS
+              </label>
               <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={e => setPassword(e.target.value)}
+                id="email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 required
-                placeholder="Enter your password"
-                style={{ ...input, paddingRight:'3rem' }}
+                placeholder="Enter your email"
+                style={input}
                 onFocus={e => e.target.style.border = '1px solid rgba(255,255,255,0.7)'}
                 onBlur={e  => e.target.style.border = '1px solid rgba(255,255,255,0.28)'}
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)}
-                style={{ position:'absolute', right:'0.85rem', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.65)', display:'flex', alignItems:'center' }}>
-                {showPassword ? <EyeOff size={19}/> : <Eye size={19}/>}
-              </button>
             </div>
-          </div>
 
-          {/* ── Remember + Forgot ── */}
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <label style={{ display:'flex', alignItems:'center', gap:'0.45rem', cursor:'pointer', color:'rgba(255,255,255,0.78)', fontSize:'0.85rem' }}>
-              <input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)}
-                style={{ width:'16px', height:'16px', accentColor:'#a78bfa', cursor:'pointer' }}/>
-              Remember me
-            </label>
-            <a href="#" style={{ color:'rgba(255,255,255,0.78)', fontSize:'0.85rem', textDecoration:'none' }}
-              onMouseEnter={e => e.target.style.color='white'} onMouseLeave={e => e.target.style.color='rgba(255,255,255,0.78)'}>
-              Forgot Password?
-            </a>
-          </div>
+            <div>
+              <label style={{ display:'block', color:'rgba(255,255,255,0.88)', fontSize:'0.83rem', fontWeight:'600', marginBottom:'0.45rem', letterSpacing:'0.02em' }}>
+                PASSWORD
+              </label>
+              <div style={{ position:'relative' }}>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  placeholder="Enter your password"
+                  style={{ ...input, paddingRight:'3rem' }}
+                  onFocus={e => e.target.style.border = '1px solid rgba(255,255,255,0.7)'}
+                  onBlur={e  => e.target.style.border = '1px solid rgba(255,255,255,0.28)'}
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  style={{ position:'absolute', right:'0.85rem', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.65)', display:'flex', alignItems:'center' }}>
+                  {showPassword ? <EyeOff size={19}/> : <Eye size={19}/>}
+                </button>
+              </div>
+            </div>
 
-          {/* ── Sign In Button ── */}
-          <button type="submit" disabled={loading}
-            style={{
-              width:'100%', padding:'0.9rem',
-              background: loading
-                ? 'rgba(255,255,255,0.2)'
-                : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', // Indigo to Violet
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <label style={{ display:'flex', alignItems:'center', gap:'0.45rem', cursor:'pointer', color:'rgba(255,255,255,0.78)', fontSize:'0.85rem' }}>
+                <input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)}
+                  style={{ width:'16px', height:'16px', accentColor:'#a78bfa', cursor:'pointer' }}/>
+                Remember me
+              </label>
+              <a href="#" style={{ color:'rgba(255,255,255,0.78)', fontSize:'0.85rem', textDecoration:'none' }}
+                onMouseEnter={e => e.target.style.color='white'} onMouseLeave={e => e.target.style.color='rgba(255,255,255,0.78)'}>
+                Forgot Password?
+              </a>
+            </div>
 
-              color:'white', fontWeight:'800', fontSize:'1rem',
-              border:'none', borderRadius:'12px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem',
-              boxShadow: loading ? 'none' : '0 8px 24px rgba(239,68,68,0.35)',
-              transition:'all 0.25s', letterSpacing:'0.03em',
-              marginTop:'0.2rem',
-            }}
-            onMouseEnter={e => { if(!loading){ e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 12px 32px rgba(239,68,68,0.5)'; }}}
-            onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 8px 24px rgba(239,68,68,0.35)'; }}
-          >
-            {loading
-              ? <><Loader2 size={20} style={{ animation:'spin 1s linear infinite' }}/> Signing In...</>
-              : '🔓 Sign In'}
-          </button>
-          
-          {/* ── Request Visitor Pass Button ── */}
-          <button type="button" onClick={() => navigate('/visitor-request')}
-            style={{
-              width:'100%', padding:'0.9rem',
-              background: 'rgba(255, 255, 255, 0.1)',
-              color:'white', fontWeight:'700', fontSize:'0.95rem',
-              border:'1px solid rgba(255, 255, 255, 0.2)', borderRadius:'12px',
-              cursor: 'pointer',
-              display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem',
-              transition:'all 0.25s', letterSpacing:'0.03em',
-              backdropFilter: 'blur(10px)'
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.background='rgba(255, 255, 255, 0.15)'; e.currentTarget.style.border='1px solid rgba(255, 255, 255, 0.3)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.background='rgba(255, 255, 255, 0.1)'; e.currentTarget.style.border='1px solid rgba(255, 255, 255, 0.2)'; }}
-          >
-            📋 Request Visitor Pass
-          </button>
-        </form>
+            <button type="submit" disabled={loading}
+              style={{
+                width:'100%', padding:'0.9rem',
+                background: loading
+                  ? 'rgba(255,255,255,0.2)'
+                  : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                color:'white', fontWeight:'800', fontSize:'1rem',
+                border:'none', borderRadius:'12px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem',
+                boxShadow: loading ? 'none' : '0 8px 24px rgba(239,68,68,0.35)',
+                transition:'all 0.25s', letterSpacing:'0.03em',
+                marginTop:'0.2rem',
+              }}
+              onMouseEnter={e => { if(!loading){ e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 12px 32px rgba(239,68,68,0.5)'; }}}
+              onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 8px 24px rgba(239,68,68,0.35)'; }}
+            >
+              {loading
+                ? <><Loader2 size={20} style={{ animation:'spin 1s linear infinite' }}/> Signing In...</>
+                : '🔓 Sign In'}
+            </button>
+            
+            <button type="button" onClick={() => navigate('/visitor-request')}
+              style={{
+                width:'100%', padding:'0.9rem',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color:'white', fontWeight:'700', fontSize:'0.95rem',
+                border:'1px solid rgba(255, 255, 255, 0.2)', borderRadius:'12px',
+                cursor: 'pointer',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:'0.5rem',
+                transition:'all 0.25s', letterSpacing:'0.03em',
+                backdropFilter: 'blur(10px)'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.background='rgba(255, 255, 255, 0.15)'; e.currentTarget.style.border='1px solid rgba(255, 255, 255, 0.3)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.background='rgba(255, 255, 255, 0.1)'; e.currentTarget.style.border='1px solid rgba(255, 255, 255, 0.2)'; }}
+            >
+              📋 Request Visitor Pass
+            </button>
+          </form>
 
-        {/* ── Footer hint ── */}
-        <p style={{ textAlign:'center', color:'rgba(255,255,255,0.42)', fontSize:'0.73rem', marginTop:'1.4rem', lineHeight:'1.6' }}>
-          Secured with JWT Authentication · Role-Based Access
-        </p>
+          <p style={{ textAlign:'center', color:'rgba(255,255,255,0.42)', fontSize:'0.73rem', marginTop:'1.4rem', lineHeight:'1.6' }}>
+            Secured with JWT Authentication · Role-Based Access
+          </p>
+        </div>
       </div>
 
       <style>{`
         input::placeholder, select option[disabled] { color: rgba(255,255,255,0.42); }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         select option { background: #3730a3; }
+        
+        .login-container {
+          display: flex;
+          flex-direction: row;
+          width: 100%;
+          max-width: 950px;
+          background: rgba(255, 255, 255, 0.04);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border-radius: 28px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 32px 64px rgba(0,0,0,0.5);
+          overflow: hidden;
+        }
+
+        .guide-section {
+          flex: 1;
+          padding: 3rem;
+          background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.15) 100%);
+          border-right: 1px solid rgba(255, 255, 255, 0.08);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          position: relative;
+        }
+
+        .form-section {
+          flex: 1;
+          padding: 3rem;
+          background: rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 850px) {
+          .login-container {
+            flex-direction: column;
+            max-width: 550px;
+          }
+          .guide-section {
+            padding: 2rem;
+            border-right: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            min-height: 380px;
+          }
+          .form-section {
+            padding: 2.25rem clamp(1.25rem, 5vw, 2.5rem);
+          }
+        }
       `}</style>
     </div>
   );
