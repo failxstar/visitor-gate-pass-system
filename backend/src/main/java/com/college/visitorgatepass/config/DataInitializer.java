@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DataInitializer implements ApplicationRunner {
 
+    private static final String DEFAULT_PASSWORD = "admin123";
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -28,47 +30,63 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void seedAdmin() {
-        if (userRepository.findByEmail("admin@college.edu").isEmpty()) {
+        String email = "admin@college.edu";
+        var existing = userRepository.findByEmail(email);
+        if (existing.isPresent()) {
+            // Always reset password to ensure it is correct
+            var user = existing.get();
+            user.setPasswordHash(passwordEncoder.encode(DEFAULT_PASSWORD));
+            userRepository.save(user);
+            log.info("Reset password for existing admin: {}", email);
+        } else {
             Admin admin = Admin.builder()
                     .name("System Admin")
-                    .email("admin@college.edu")
-                    .passwordHash(passwordEncoder.encode("admin123"))
+                    .email(email)
+                    .passwordHash(passwordEncoder.encode(DEFAULT_PASSWORD))
                     .role(Role.ADMIN)
                     .build();
             userRepository.save(admin);
-            log.info("Seeded default admin account: admin@college.edu");
-        } else {
-            log.info("Admin account already exists, skipping seed.");
+            log.info("Created default admin: {}", email);
         }
     }
 
     private void seedGuard() {
-        if (userRepository.findByEmail("guard@college.edu").isEmpty()) {
+        String email = "guard@college.edu";
+        var existing = userRepository.findByEmail(email);
+        if (existing.isPresent()) {
+            var user = existing.get();
+            user.setPasswordHash(passwordEncoder.encode(DEFAULT_PASSWORD));
+            userRepository.save(user);
+            log.info("Reset password for existing guard: {}", email);
+        } else {
             Guard guard = Guard.builder()
                     .name("Security Guard")
-                    .email("guard@college.edu")
-                    .passwordHash(passwordEncoder.encode("admin123"))
+                    .email(email)
+                    .passwordHash(passwordEncoder.encode(DEFAULT_PASSWORD))
                     .role(Role.GUARD)
                     .build();
             userRepository.save(guard);
-            log.info("Seeded default guard account: guard@college.edu");
-        } else {
-            log.info("Guard account already exists, skipping seed.");
+            log.info("Created default guard: {}", email);
         }
     }
 
     private void seedHost() {
-        if (userRepository.findByEmail("host@college.edu").isEmpty()) {
+        String email = "host@college.edu";
+        var existing = userRepository.findByEmail(email);
+        if (existing.isPresent()) {
+            var user = existing.get();
+            user.setPasswordHash(passwordEncoder.encode(DEFAULT_PASSWORD));
+            userRepository.save(user);
+            log.info("Reset password for existing host: {}", email);
+        } else {
             Host host = Host.builder()
                     .name("Prof. John Host")
-                    .email("host@college.edu")
-                    .passwordHash(passwordEncoder.encode("admin123"))
+                    .email(email)
+                    .passwordHash(passwordEncoder.encode(DEFAULT_PASSWORD))
                     .role(Role.HOST)
                     .build();
             userRepository.save(host);
-            log.info("Seeded default host account: host@college.edu");
-        } else {
-            log.info("Host account already exists, skipping seed.");
+            log.info("Created default host: {}", email);
         }
     }
 }
