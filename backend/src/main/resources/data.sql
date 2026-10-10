@@ -2,17 +2,17 @@
 
 -- Admins
 INSERT INTO admins (id, name, email, password_hash, role, created_at) 
-VALUES (101, 'System Admin', 'admin@college.edu', '$2a$10$TH8uchNrkGrEu8bYX3PN8uTg9f6j0jVWXKxhHMawww/EVBIgRbwX.', 'ADMIN', CURRENT_TIMESTAMP)
+VALUES (101, 'System Admin', 'admin@college.edu', '$2a$10$Ggk0kXax8pplKe2yKMCXqug7kcvB4BNxwKubNM4upy6W5eXaM/hbC', 'ADMIN', CURRENT_TIMESTAMP)
 ON CONFLICT (id) DO NOTHING;
 
 -- Guards
 INSERT INTO guards (id, name, email, password_hash, role, created_at) 
-VALUES (102, 'Security Guard', 'guard@college.edu', '$2a$10$TH8uchNrkGrEu8bYX3PN8uTg9f6j0jVWXKxhHMawww/EVBIgRbwX.', 'GUARD', CURRENT_TIMESTAMP)
+VALUES (102, 'Security Guard', 'guard@college.edu', '$2a$10$Ggk0kXax8pplKe2yKMCXqug7kcvB4BNxwKubNM4upy6W5eXaM/hbC', 'GUARD', CURRENT_TIMESTAMP)
 ON CONFLICT (id) DO NOTHING;
 
 -- Hosts
 INSERT INTO hosts (id, name, email, password_hash, role, created_at) 
-VALUES (103, 'Prof. John Host', 'host@college.edu', '$2a$10$TH8uchNrkGrEu8bYX3PN8uTg9f6j0jVWXKxhHMawww/EVBIgRbwX.', 'HOST', CURRENT_TIMESTAMP)
+VALUES (103, 'Prof. John Host', 'host@college.edu', '$2a$10$Ggk0kXax8pplKe2yKMCXqug7kcvB4BNxwKubNM4upy6W5eXaM/hbC', 'HOST', CURRENT_TIMESTAMP)
 ON CONFLICT (id) DO NOTHING;
 
 -- Visitors

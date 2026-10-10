@@ -65,8 +65,16 @@ const Login = () => {
       if (returnedRole === 'ADMIN') navigate('/admin');
       else if (returnedRole === 'GUARD') navigate('/guard');
       else if (returnedRole === 'HOST') navigate('/host');
-    } catch {
-      setError('Invalid credentials. Please try again.');
+    } catch (err) {
+      if (err.response) {
+        if (err.response.status === 401 || err.response.status === 403) {
+          setError('Invalid credentials. Please try again.');
+        } else {
+          setError(`Server error: ${err.response.data.message || err.message}`);
+        }
+      } else {
+        setError(`Network error: Could not reach the server.`);
+      }
     } finally {
       setLoading(false);
     }
