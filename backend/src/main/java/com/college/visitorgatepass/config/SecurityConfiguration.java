@@ -46,6 +46,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/visitors/request/*/status").hasAnyRole("HOST", "ADMIN")
                         .requestMatchers("/api/guard/**").hasRole("GUARD")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/entry-logs/**").hasAnyRole("ADMIN", "GUARD")
                         .requestMatchers("/api/host/**").hasRole("HOST")
                         .anyRequest().authenticated()
                 )
