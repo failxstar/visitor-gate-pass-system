@@ -7,6 +7,7 @@ import com.college.visitorgatepass.model.entity.GatePass;
 import com.college.visitorgatepass.model.entity.Host;
 import com.college.visitorgatepass.model.entity.Visitor;
 import com.college.visitorgatepass.model.enums.PassStatus;
+import com.college.visitorgatepass.repository.BlacklistRepository;
 import com.college.visitorgatepass.repository.GatePassRepository;
 import com.college.visitorgatepass.repository.HostRepository;
 import com.college.visitorgatepass.repository.VisitorRepository;
@@ -34,6 +35,9 @@ class GatePassServiceImplTest {
 
     @Mock
     private HostRepository hostRepository;
+
+    @Mock
+    private BlacklistRepository blacklistRepository;
 
     @InjectMocks
     private GatePassServiceImpl gatePassService;
@@ -69,6 +73,7 @@ class GatePassServiceImplTest {
                 .build();
 
         when(visitorRepository.findById(1L)).thenReturn(Optional.of(visitor));
+        when(blacklistRepository.existsByVisitorPhone("9876543210")).thenReturn(false);
         when(hostRepository.findById(2L)).thenReturn(Optional.of(host));
         when(gatePassRepository.save(any(GatePass.class))).thenReturn(savedPass);
 
@@ -85,6 +90,34 @@ class GatePassServiceImplTest {
         verify(visitorRepository).findById(1L);
         verify(hostRepository).findById(2L);
         verify(gatePassRepository).save(any(GatePass.class));
+    }
+
+    @Test
+    void createGatePass_shouldThrowWhenVisitorIsBlacklisted() {
+        Visitor visitor = Visitor.builder()
+                .id(1L)
+                .name("Test Visitor")
+                .phone("9876543210")
+                .build();
+
+        GatePassRequest request = GatePassRequest.builder()
+                .visitorId(1L)
+                .hostId(2L)
+                .purpose("Meeting")
+                .build();
+
+        when(visitorRepository.findById(1L)).thenReturn(Optional.of(visitor));
+        when(blacklistRepository.existsByVisitorPhone("9876543210")).thenReturn(true);
+
+        assertThrows(
+                RuntimeException.class,
+                () -> gatePassService.createGatePass(request)
+        );
+
+        verify(visitorRepository).findById(1L);
+        verify(blacklistRepository).existsByVisitorPhone("9876543210");
+        verify(hostRepository, never()).findById(anyLong());
+        verify(gatePassRepository, never()).save(any(GatePass.class));
     }
 
     @Test
