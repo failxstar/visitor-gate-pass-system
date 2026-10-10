@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Activity, Search, RefreshCw, Calendar, Clock, LogIn, LogOut } from 'lucide-react';
+import { Activity, Search, RefreshCw, Clock, LogIn, LogOut } from 'lucide-react';
 import { entryLogApi } from '../api/entryLogApi';
 import Loader from '../components/Loader';
 
@@ -24,6 +24,7 @@ const EntryLogs = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line
     fetchLogs();
   }, []);
 
