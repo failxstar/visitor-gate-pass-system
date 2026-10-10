@@ -24,69 +24,75 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        seedAdmin();
-        seedGuard();
-        seedHost();
+        String hash = passwordEncoder.encode(DEFAULT_PASSWORD);
+        log.info("DataInitializer: generated hash prefix = {}", hash.substring(0, 7));
+
+        seedAdmin(hash);
+        seedGuard(hash);
+        seedHost(hash);
     }
 
-    private void seedAdmin() {
+    private void seedAdmin(String hash) {
         String email = "admin@college.edu";
-        var existing = userRepository.findByEmail(email);
-        if (existing.isPresent()) {
-            // Always reset password to ensure it is correct
-            var user = existing.get();
-            user.setPasswordHash(passwordEncoder.encode(DEFAULT_PASSWORD));
-            userRepository.save(user);
-            log.info("Reset password for existing admin: {}", email);
-        } else {
-            Admin admin = Admin.builder()
-                    .name("System Admin")
-                    .email(email)
-                    .passwordHash(passwordEncoder.encode(DEFAULT_PASSWORD))
-                    .role(Role.ADMIN)
-                    .build();
-            userRepository.save(admin);
-            log.info("Created default admin: {}", email);
+        try {
+            int updated = userRepository.updateAdminPasswordHash(email, hash);
+            if (updated > 0) {
+                log.info("DataInitializer: reset admin password for '{}'", email);
+            } else {
+                // Row doesn't exist yet — create it
+                Admin admin = Admin.builder()
+                        .name("System Admin")
+                        .email(email)
+                        .passwordHash(hash)
+                        .role(Role.ADMIN)
+                        .build();
+                userRepository.save(admin);
+                log.info("DataInitializer: created admin '{}'", email);
+            }
+        } catch (Exception e) {
+            log.error("DataInitializer: failed for admin '{}': {}", email, e.getMessage());
         }
     }
 
-    private void seedGuard() {
+    private void seedGuard(String hash) {
         String email = "guard@college.edu";
-        var existing = userRepository.findByEmail(email);
-        if (existing.isPresent()) {
-            var user = existing.get();
-            user.setPasswordHash(passwordEncoder.encode(DEFAULT_PASSWORD));
-            userRepository.save(user);
-            log.info("Reset password for existing guard: {}", email);
-        } else {
-            Guard guard = Guard.builder()
-                    .name("Security Guard")
-                    .email(email)
-                    .passwordHash(passwordEncoder.encode(DEFAULT_PASSWORD))
-                    .role(Role.GUARD)
-                    .build();
-            userRepository.save(guard);
-            log.info("Created default guard: {}", email);
+        try {
+            int updated = userRepository.updateGuardPasswordHash(email, hash);
+            if (updated > 0) {
+                log.info("DataInitializer: reset guard password for '{}'", email);
+            } else {
+                Guard guard = Guard.builder()
+                        .name("Security Guard")
+                        .email(email)
+                        .passwordHash(hash)
+                        .role(Role.GUARD)
+                        .build();
+                userRepository.save(guard);
+                log.info("DataInitializer: created guard '{}'", email);
+            }
+        } catch (Exception e) {
+            log.error("DataInitializer: failed for guard '{}': {}", email, e.getMessage());
         }
     }
 
-    private void seedHost() {
+    private void seedHost(String hash) {
         String email = "host@college.edu";
-        var existing = userRepository.findByEmail(email);
-        if (existing.isPresent()) {
-            var user = existing.get();
-            user.setPasswordHash(passwordEncoder.encode(DEFAULT_PASSWORD));
-            userRepository.save(user);
-            log.info("Reset password for existing host: {}", email);
-        } else {
-            Host host = Host.builder()
-                    .name("Prof. John Host")
-                    .email(email)
-                    .passwordHash(passwordEncoder.encode(DEFAULT_PASSWORD))
-                    .role(Role.HOST)
-                    .build();
-            userRepository.save(host);
-            log.info("Created default host: {}", email);
+        try {
+            int updated = userRepository.updateHostPasswordHash(email, hash);
+            if (updated > 0) {
+                log.info("DataInitializer: reset host password for '{}'", email);
+            } else {
+                Host host = Host.builder()
+                        .name("Prof. John Host")
+                        .email(email)
+                        .passwordHash(hash)
+                        .role(Role.HOST)
+                        .build();
+                userRepository.save(host);
+                log.info("DataInitializer: created host '{}'", email);
+            }
+        } catch (Exception e) {
+            log.error("DataInitializer: failed for host '{}': {}", email, e.getMessage());
         }
     }
 }
