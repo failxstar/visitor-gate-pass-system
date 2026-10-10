@@ -3,6 +3,7 @@ package com.college.visitorgatepass.config;
 import com.college.visitorgatepass.model.entity.Admin;
 import com.college.visitorgatepass.model.entity.Guard;
 import com.college.visitorgatepass.model.entity.Host;
+import com.college.visitorgatepass.model.entity.User;
 import com.college.visitorgatepass.model.enums.Role;
 import com.college.visitorgatepass.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -23,6 +25,7 @@ public class DataInitializer implements ApplicationRunner {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void run(ApplicationArguments args) {
         String hash = passwordEncoder.encode(DEFAULT_PASSWORD);
         log.info("DataInitializer: generated hash prefix = {}", hash.substring(0, 7));
@@ -35,11 +38,12 @@ public class DataInitializer implements ApplicationRunner {
     private void seedAdmin(String hash) {
         String email = "admin@college.edu";
         try {
-            int updated = userRepository.updateAdminPasswordHash(email, hash);
-            if (updated > 0) {
+            User existing = userRepository.findByEmail(email).orElse(null);
+            if (existing != null) {
+                existing.setPasswordHash(hash);
+                userRepository.save(existing);
                 log.info("DataInitializer: reset admin password for '{}'", email);
             } else {
-                // Row doesn't exist yet — create it
                 Admin admin = Admin.builder()
                         .name("System Admin")
                         .email(email)
@@ -51,14 +55,17 @@ public class DataInitializer implements ApplicationRunner {
             }
         } catch (Exception e) {
             log.error("DataInitializer: failed for admin '{}': {}", email, e.getMessage());
+            throw new RuntimeException("Failed to seed admin", e);
         }
     }
 
     private void seedGuard(String hash) {
         String email = "guard@college.edu";
         try {
-            int updated = userRepository.updateGuardPasswordHash(email, hash);
-            if (updated > 0) {
+            User existing = userRepository.findByEmail(email).orElse(null);
+            if (existing != null) {
+                existing.setPasswordHash(hash);
+                userRepository.save(existing);
                 log.info("DataInitializer: reset guard password for '{}'", email);
             } else {
                 Guard guard = Guard.builder()
@@ -72,14 +79,17 @@ public class DataInitializer implements ApplicationRunner {
             }
         } catch (Exception e) {
             log.error("DataInitializer: failed for guard '{}': {}", email, e.getMessage());
+            throw new RuntimeException("Failed to seed guard", e);
         }
     }
 
     private void seedHost(String hash) {
         String email = "host@college.edu";
         try {
-            int updated = userRepository.updateHostPasswordHash(email, hash);
-            if (updated > 0) {
+            User existing = userRepository.findByEmail(email).orElse(null);
+            if (existing != null) {
+                existing.setPasswordHash(hash);
+                userRepository.save(existing);
                 log.info("DataInitializer: reset host password for '{}'", email);
             } else {
                 Host host = Host.builder()
@@ -93,6 +103,8 @@ public class DataInitializer implements ApplicationRunner {
             }
         } catch (Exception e) {
             log.error("DataInitializer: failed for host '{}': {}", email, e.getMessage());
+            throw new RuntimeException("Failed to seed host", e);
         }
     }
 }
+
